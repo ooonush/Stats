@@ -1,0 +1,10 @@
+{
+  "name": "com.alven.stats",
+  "displayName": "Stats",
+  "description": "Stats System for Unity",
+  "version": "0.0.1-pre.1",
+  "unity": "2021.3",
+  "author": "Alven (https://github.com/ooonush)",
+  "homepage": "https://github.com/ooonush/Stats",
+  "dependencies": {}
+}
