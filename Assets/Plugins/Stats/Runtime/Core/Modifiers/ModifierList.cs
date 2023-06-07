@@ -41,20 +41,11 @@ namespace Stats
             return false;
         }
 
-        public void Clear()
-        {
-            _list.Clear();
-        }
+        public void Clear() => _list.Clear();
 
-        IEnumerator<Modifier> IEnumerable<Modifier>.GetEnumerator()
-        {
-            return _list.GetEnumerator();
-        }
+        IEnumerator<Modifier> IEnumerable<Modifier>.GetEnumerator() => _list.GetEnumerator();
 
-        public IEnumerator GetEnumerator()
-        {
-            return ((IEnumerable)_list).GetEnumerator();
-        }
+        public IEnumerator GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
 
         public int Count => _list.Count;
 
