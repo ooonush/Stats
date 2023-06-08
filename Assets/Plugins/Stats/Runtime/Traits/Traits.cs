@@ -4,29 +4,27 @@ using UnityEngine;
 namespace Stats
 {
     [AddComponentMenu("Stats/Traits")]
-    [DefaultExecutionOrder(-999)]
+    [DefaultExecutionOrder(-short.MinValue)]
     public sealed class Traits : MonoBehaviour, ITraits
     {
         [SerializeField] private TraitsClassBase _traitsClass;
 
-        private RuntimeStats _runtimeStats;
-        private RuntimeAttributes _runtimeAttributes;
-        private bool _initialized;
+        public RuntimeStats RuntimeStats { get; private set; }
+        public RuntimeAttributes RuntimeAttributes { get; private set; }
 
-        public RuntimeStats RuntimeStats => _runtimeStats;
-        public RuntimeAttributes RuntimeAttributes => _runtimeAttributes;
         IRuntimeStats<IRuntimeStat> ITraits.RuntimeStats => RuntimeStats;
         IRuntimeAttributes<IRuntimeAttribute> ITraits.RuntimeAttributes => RuntimeAttributes;
 
+        private bool _initialized;
+
         private void Awake()
         {
-            _runtimeStats = new RuntimeStats(this);
-            _runtimeAttributes = new RuntimeAttributes(this);
+            RuntimeStats = new RuntimeStats(this);
+            RuntimeAttributes = new RuntimeAttributes(this);
 
             if (_traitsClass)
             {
-                _runtimeStats.SyncWithTraitsClass(_traitsClass);
-                _runtimeAttributes.SyncWithTraitsClass(_traitsClass);
+                Initialize(_traitsClass);
             }
         }
 
@@ -35,34 +33,34 @@ namespace Stats
             const string error = "Traits not initialized. Please set TraitsClass in the inspector or call Initialize()";
             if (!_traitsClass)
             {
-                Debug.LogError(error);
+                Debug.LogWarning(error);
             }
-            _initialized = true;
         }
 
         public void Initialize(TraitsClassBase traitsClass)
         {
             if (_initialized)
             {
-                throw new InvalidOperationException("Traits already initialized");
+                throw new InvalidOperationException(
+                    "Traits already initialized. You must have already called Initialize() or specified TraitsClass in the Inspector.");
             }
 
             if (!traitsClass)
             {
-                throw new ArgumentNullException(nameof(traitsClass), "TraitsClass cannot be null");
+                throw new ArgumentNullException(nameof(traitsClass), "TraitsClass cannot be null.");
             }
 
-            _initialized = true;
-            _traitsClass = traitsClass;
             SyncWithTraitsClass(traitsClass);
+            _traitsClass = traitsClass;
+            _initialized = true;
         }
 
         private void SyncWithTraitsClass(TraitsClassBase traitsClass)
         {
-            _runtimeStats.SyncWithTraitsClass(traitsClass);
-            _runtimeAttributes.SyncWithTraitsClass(traitsClass);
+            RuntimeStats.SyncWithTraitsClass(traitsClass);
+            RuntimeAttributes.SyncWithTraitsClass(traitsClass);
 
-            foreach (RuntimeStat runtimeStat in _runtimeStats)
+            foreach (RuntimeStat runtimeStat in RuntimeStats)
             {
                 runtimeStat.InitializeStartValues();
             }
