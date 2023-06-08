@@ -11,7 +11,7 @@ _This version is in **preview** stage and may be unstable, it is **not recommend
 
 ## Installation
 
-Requires a version of **Unity 2021.3** or newer. You can add `https://github.com/ooonush/Stats.git?path=Assets/Plugins/Stats` to **Package Manager**
+Requires a version of **Unity 2022.3** or newer. You can add `https://github.com/ooonush/Stats.git?path=Assets/Plugins/Stats` to **Package Manager**
 
 ![image](https://github.com/ooonush/Stats/assets/72870405/40005626-471f-4660-bd15-40b72931bd75)
 
