@@ -1,22 +1,29 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEngine;
 
 namespace Stats
 {
     [AttributeUsage(AttributeTargets.Field)]
-    public sealed class TraitsClassConfigAttribute : System.Attribute
+    public sealed class TraitsClassConfigAttribute : Attribute
     {
         
     }
 
+    /// <summary>
+    /// The base class for all traits classes.
+    /// </summary>
     public abstract class TraitsClassBase : IdScriptableObject
     {
-        private static readonly Dictionary<Type, FieldInfo[]> Fields = new Dictionary<Type, FieldInfo[]>();
+        private static readonly Dictionary<Type, FieldInfo[]> Fields = new();
 
         private HashSet<StatItem> _statItems;
         private HashSet<AttributeItem> _attributeItems;
 
+        /// <summary>
+        /// All Stats in this TraitsClass.
+        /// </summary>
         public IEnumerable<StatItem> StatItems
         {
             get
@@ -29,6 +36,9 @@ namespace Stats
             }
         }
 
+        /// <summary>
+        /// All Attributes in this TraitsClass.
+        /// </summary>
         public IEnumerable<AttributeItem> AttributeItems
         {
             get
@@ -40,6 +50,8 @@ namespace Stats
                 return _attributeItems;
             }
         }
+
+        private void OnValidate() => InitializeItems();
 
         private void InitializeItems()
         {
@@ -87,15 +99,9 @@ namespace Stats
             return false;
         }
 
-        private void AddAttribute(AttributeItem attributeItem)
-        {
-            _attributeItems.Add(attributeItem);
-        }
+        private void AddAttribute(AttributeItem attributeItem) => _attributeItems.Add(attributeItem);
 
-        private void AddStat(StatItem statItem)
-        {
-            _statItems.Add(statItem);
-        }
+        private void AddStat(StatItem statItem) => _statItems.Add(statItem);
 
         private static IEnumerable<FieldInfo> GetFieldsByType(Type type)
         {

@@ -7,16 +7,13 @@ namespace Stats
     [Serializable]
     public sealed class ModifierList : IReadOnlyList<Modifier>
     {
-        private readonly List<Modifier> _list;
+        private readonly List<Modifier> _list = new();
 
         public float Value { get; private set; }
 
-        public ModifierList()
-        {
-            _list = new List<Modifier>();
+        public int Count => _list.Count;
 
-            Value = 0f;
-        }
+        public Modifier this[int index] => _list[index];
 
         public Modifier Add(float value)
         {
@@ -46,9 +43,5 @@ namespace Stats
         IEnumerator<Modifier> IEnumerable<Modifier>.GetEnumerator() => _list.GetEnumerator();
 
         public IEnumerator GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
-
-        public int Count => _list.Count;
-
-        public Modifier this[int index] => _list[index];
     }
 }

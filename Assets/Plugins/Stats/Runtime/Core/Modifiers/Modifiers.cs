@@ -3,24 +3,18 @@ using System.Collections.Generic;
 
 namespace Stats
 {
-    [Serializable]
     public sealed class Modifiers
     {
-        private ModifierList _percentages;
-        private ModifierList _constants;
+        private readonly ModifierList _percentages = new();
+        private readonly ModifierList _constants = new();
 
         public IReadOnlyList<Modifier> Percentages => _percentages;
         public IReadOnlyList<Modifier> Constants => _constants;
 
-        public Modifiers()
-        {
-            _percentages = new ModifierList();
-            _constants = new ModifierList();
-        }
-
         public void CopyDataFrom(Modifiers modifiers)
         {
-            Clear();
+            _percentages.Clear();
+            _constants.Clear();
 
             foreach (Modifier modifier in modifiers.Percentages)
             {
@@ -40,14 +34,19 @@ namespace Stats
             return value;
         }
 
-        public Modifier Add(ModifierType type, float value)
+        public void Add(ModifierType type, float value)
         {
-            return type switch
+            switch (type)
             {
-                ModifierType.Constant => _constants.Add(value),
-                ModifierType.Percent => _percentages.Add(value),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+                case ModifierType.Constant:
+                    _constants.Add(value);
+                    break;
+                case ModifierType.Percent:
+                    _percentages.Add(value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
 
         public bool Remove(ModifierType type, float value)
@@ -58,12 +57,6 @@ namespace Stats
                 ModifierType.Percent => _percentages.Remove(value),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
-        }
-
-        public void Clear()
-        {
-            _percentages.Clear();
-            _constants.Clear();
         }
     }
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 namespace Stats
 {
     [AddComponentMenu("Stats/Traits")]
+    [DefaultExecutionOrder(-999)]
     public sealed class Traits : MonoBehaviour, ITraits
     {
         [SerializeField] private TraitsClassBase _traitsClass;

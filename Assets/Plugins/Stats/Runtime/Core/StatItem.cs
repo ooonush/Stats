@@ -33,14 +33,5 @@ namespace Stats
                 return _changeFormula ? _formula : _stat.Formula;
             }
         }
-
-        public StatItem()
-        {
-        }
-
-        public StatItem(Stat stat)
-        {
-            _stat = stat;
-        }
     }
 }

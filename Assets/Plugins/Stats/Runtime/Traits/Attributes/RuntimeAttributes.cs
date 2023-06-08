@@ -8,7 +8,7 @@ namespace Stats
     public sealed class RuntimeAttributes : IRuntimeAttributes<RuntimeAttribute>
     {
         private readonly Traits _traits;
-        private readonly Dictionary<AttributeType, RuntimeAttribute> _attributes = new Dictionary<AttributeType, RuntimeAttribute>();
+        private readonly Dictionary<AttributeType, RuntimeAttribute> _attributes = new();
 
         public int Count => _attributes.Values.Count;
 
@@ -25,15 +25,15 @@ namespace Stats
 
             foreach (AttributeItem attributeItem in traitsClass.AttributeItems)
             {
-                if (attributeItem == null || attributeItem.AttributeType == null)
+                if (attributeItem == null || !attributeItem.AttributeType)
                 {
-                    throw new NullReferenceException("No Attribute reference found");
+                    throw new NullReferenceException("No AttributeType reference found in TraitsClass");
                 }
 
                 AttributeType attributeType = attributeItem.AttributeType;
                 if (_attributes.ContainsKey(attributeType))
                 {
-                    throw new Exception($"Attribute with AttributeType id = '{attributeType.Id}' already exists");
+                    throw new Exception($"Attribute with AttributeType \"{attributeType.name}\" already exists");
                 }
 
                 var runtimeAttribute = new RuntimeAttribute(_traits, attributeItem);
@@ -58,7 +58,21 @@ namespace Stats
             OnValueChanged?.Invoke(attributeType, change);
         }
 
-        public RuntimeAttribute Get(AttributeType attributeType) => _attributes[attributeType];
+        public RuntimeAttribute Get(AttributeType attributeType)
+        {
+            if (attributeType == null) throw new ArgumentNullException(nameof(attributeType));
+
+            try
+            {
+                return _attributes[attributeType];
+            }
+            catch (Exception exception)
+            {
+                throw new ArgumentException("AttributeType not found in RuntimeAttributes", nameof(attributeType),
+                    exception);
+            }
+        }
+
         public bool Contains(AttributeType attributeType) => _attributes.ContainsKey(attributeType);
 
         public IEnumerator<RuntimeAttribute> GetEnumerator() => _attributes.Values.GetEnumerator();
