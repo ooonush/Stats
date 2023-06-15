@@ -35,13 +35,17 @@ namespace Stats.Editor
             {
                 value = _runtimeAttribute.MinValue
             };
-            
-            minValueField.labelElement.style.minWidth = new StyleLength(143);
+
+            const int flexGrow = 0;
+            const int width = 143;
+            minValueField.labelElement.style.flexGrow = flexGrow;
+            minValueField.labelElement.style.width = width;
             minValueField.SetEnabled(false);
 
             _valueField = new FloatField(nameof(runtimeStat.Value));
 
-            _valueField.labelElement.style.minWidth = new StyleLength(143);
+            _valueField.labelElement.style.flexGrow = flexGrow;
+            _valueField.labelElement.style.width = new StyleLength(width);
 
             _runtimeStatElement = new RuntimeStatElement(runtimeStat)
             {
@@ -52,7 +56,8 @@ namespace Stats.Editor
                 }
             };
             
-            _runtimeStatElement.Label.style.minWidth = new StyleLength(143);
+            _runtimeStatElement.Label.style.flexGrow = flexGrow;
+            _runtimeStatElement.Label.style.width = new StyleLength(width);
 
             _runtimeStatElement.Release();
             _runtimeStatElement.BaseField.RegisterValueChangedCallback(OnBaseFieldChanged);
