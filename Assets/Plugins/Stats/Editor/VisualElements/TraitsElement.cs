@@ -5,9 +5,10 @@ using UnityEngine.UIElements;
 
 namespace Stats.Editor
 {
-    public class TraitsVisualElement : VisualElement
+    public class TraitsElement : VisualElement
     {
         private readonly ITraits _traits;
+        private readonly PropertyField _fieldTraitsClass;
         private readonly SerializedProperty _traitsClassProperty;
 
         private readonly VisualElement _statLabelContainer;
@@ -19,10 +20,10 @@ namespace Stats.Editor
         private readonly Label _attributeLabel;
 
         private TraitsClassBase _oldTraitsClass;
-        private RuntimeStatsVisualElement _runtimeStatsVisualElement;
-        private RuntimeAttributesVisualElement _runtimeAttributeVisualElement;
+        private RuntimeStatsElement _runtimeStatsElement;
+        private RuntimeAttributesElement _runtimeAttributeElement;
 
-        public TraitsVisualElement(ITraits traits, SerializedObject serializedObject)
+        public TraitsElement(ITraits traits, SerializedObject serializedObject)
         {
             _traits = traits;
 
@@ -30,27 +31,30 @@ namespace Stats.Editor
 
             _oldTraitsClass = StatsEditorHelper.GetValue<TraitsClassBase>(_traitsClassProperty);
             
-            var fieldTraitsClass = new PropertyField(_traitsClassProperty);
+            _fieldTraitsClass = new PropertyField(_traitsClassProperty);
             _statLabelContainer = new VisualElement();
-            _statLabel = new Label { text = "<b>Stats:</b>" };
+            _statLabel = new Label { text = "<b>Stats</b>" };
             _statContainer = new VisualElement();
             _attributeLabelContainer = new VisualElement();
-            _attributeLabel = new Label { text = "<b>Attributes:</b>" };
+            _attributeLabel = new Label { text = "<b>Attributes</b>" };
             _attributeContainer = new VisualElement();
 
-            _statContainer.style.marginLeft = 15f;
+            _statContainer.style.marginLeft = 3f;
             _statContainer.style.marginTop = 5f; 
-            _statLabel.style.marginTop = 10f;
-            _attributeContainer.style.marginLeft = 15f;
+            _statLabel.style.marginTop = 5f;
+            _statLabel.style.marginLeft = 3f;
+            _statLabel.style.marginBottom = -2f;
+            _attributeContainer.style.marginLeft = 3f;
             _attributeContainer.style.marginTop = 5f; 
-            _attributeLabel.style.marginTop = 10f;
-
+            _attributeLabel.style.marginTop = 15f;
+            _attributeLabel.style.marginLeft = 3f;
+            
             _statLabel.style.fontSize = 12;
             _attributeLabel.style.fontSize = 12;
             
-            fieldTraitsClass.RegisterValueChangeCallback(OnTraitsClassChange);
+            _fieldTraitsClass.RegisterValueChangeCallback(OnTraitsClassChange);
 
-            Add(fieldTraitsClass);
+            Add(_fieldTraitsClass);
             Add(_statLabelContainer);
             Add(_statContainer);
             Add(_attributeLabelContainer);
@@ -61,8 +65,8 @@ namespace Stats.Editor
 
         public void ReleaseAllCallback()
         {
-            _runtimeStatsVisualElement?.ReleaseAllCallback();
-            _runtimeAttributeVisualElement?.ReleaseAllCallback();
+            _runtimeStatsElement?.ReleaseAllCallback();
+            _runtimeAttributeElement?.ReleaseAllRuntimeAttribute();
         }
         
         private void OnTraitsClassChange(SerializedPropertyChangeEvent evt)
@@ -85,11 +89,16 @@ namespace Stats.Editor
             
             if (Application.isPlaying)
             {
-                _runtimeStatsVisualElement = new RuntimeStatsVisualElement(_traits);
-                _statContainer.Add(_runtimeStatsVisualElement);
+                _fieldTraitsClass.SetEnabled(false);
+                
+                _runtimeStatsElement = new RuntimeStatsElement(_traits);
+                _statContainer.Add(_runtimeStatsElement);
 
-                _runtimeAttributeVisualElement = new RuntimeAttributesVisualElement(_traits);
-                _attributeContainer.Add(_runtimeAttributeVisualElement);
+                _runtimeAttributeElement = new RuntimeAttributesElement(_traits);
+                _attributeContainer.Add(_runtimeAttributeElement);
+                
+                if (_runtimeStatsElement.childCount == 0) _statLabel.RemoveFromHierarchy();
+                if (_runtimeAttributeElement.childCount == 0) _attributeLabel.RemoveFromHierarchy();
             }
             
             if (_statContainer.childCount == 0) _statLabel.RemoveFromHierarchy();

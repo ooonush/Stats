@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿using System.Reflection;
+using UnityEditor;
+using UnityEditor.UIElements;
 using UnityEngine.UIElements;
 
 namespace Stats.Editor
@@ -7,16 +9,16 @@ namespace Stats.Editor
     [CanEditMultipleObjects]
     public class TraitsEditor : UnityEditor.Editor
     {
-        private TraitsVisualElement _traitsVisualElement; 
-            
+        private TraitsElement _traitsElement;
+
         public override VisualElement CreateInspectorGUI()
         {
             var root = new VisualElement();
-            _traitsVisualElement = new TraitsVisualElement(target as Traits, serializedObject);
-            root.Add(_traitsVisualElement);
+            _traitsElement = new TraitsElement(target as Traits, serializedObject);
+            root.Add(_traitsElement);
             return root;
         }
 
-        private void OnDestroy() => _traitsVisualElement?.ReleaseAllCallback();
+        private void OnDestroy() => _traitsElement?.ReleaseAllCallback();
     }
 }

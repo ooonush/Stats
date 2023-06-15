@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Stats.Editor
 {
-    public class StatItemVisualElement : VisualElement
+    public class StatItemElement : VisualElement
     {
         private readonly SerializedProperty _property;
 
@@ -32,7 +32,7 @@ namespace Stats.Editor
         private float _oldValue;
         private bool _oldChangeFormula;
 
-        public StatItemVisualElement(SerializedProperty property)
+        public StatItemElement(SerializedProperty property)
         {
             _property = property;
             
