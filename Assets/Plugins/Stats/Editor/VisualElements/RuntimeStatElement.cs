@@ -18,14 +18,19 @@ namespace Stats.Editor
 
             style.flexDirection = FlexDirection.Row;
 
-            Label = new Label();
-
-            Label.style.minWidth = new StyleLength(160);
-            Label.style.alignSelf = Align.Center;
+            Label = new Label
+            {
+                style =
+                {
+                    width = new StyleLength(161),
+                    flexGrow = 0,
+                    alignSelf = Align.Center
+                }
+            };
 
             BaseField = new FloatField(nameof(runtimeStat.Base));
 
-            style.maxHeight = new StyleLength(Length.Percent(100));
+            // style.maxHeight = new StyleLength(Length.Percent(100));
 
             BaseField.style.flexGrow = 1;
             BaseField.labelElement.style.minWidth = 0;
