@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Stats.Editor
 {
-    public class AttributeItemVisualElement : VisualElement
+    public class AttributeItemElement : VisualElement
     {
         private readonly SerializedProperty _property;
 
@@ -27,7 +27,7 @@ namespace Stats.Editor
 
         private readonly Foldout _foldout = new();
 
-        public AttributeItemVisualElement(SerializedProperty property)
+        public AttributeItemElement(SerializedProperty property)
         {
             _property = property;
 
@@ -37,7 +37,7 @@ namespace Stats.Editor
 
             var fieldAttr = new PropertyField(_attr);
             _fieldChangeStartPercent = new PropertyField(_changeStartPercent);
-            _fieldStartPercent = new PropertyField(_startPercent, " ");
+            _fieldStartPercent = new PropertyField(_startPercent, "");
 
             _attributeItem = StatsEditorHelper.GetValue<AttributeItem>(property);
 

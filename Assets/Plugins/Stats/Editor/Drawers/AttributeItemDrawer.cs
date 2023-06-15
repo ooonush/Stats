@@ -8,7 +8,7 @@ namespace Stats.Editor
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            return new AttributeItemVisualElement(property);
+            return new AttributeItemElement(property);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Stats.Editor
     {
         public static string GetStatItemHeader (StatItem statItem, string label)
         {
-            return $"<b>{label}:</b> {statItem.Base}";
+            return $"{label}: {statItem.Base}";
         }
 
         public static string GetRuntimeStatHeader(IRuntimeStat runtimeStat)
@@ -22,14 +22,14 @@ namespace Stats.Editor
                 ? $"<color=green>{modifiersValueString}</color>"
                 : $"<color=red>{modifiersValueString}</color>";
 
-            return $"<b>{name}:</b> {value - modifiersValue} {modifiersText}";
+            return $"{name}: {value - modifiersValue} {modifiersText}";
         }
         
         public static string GetAttributeItemHeader(AttributeItem attributeItem, string label)
         {
             float startPercent = attributeItem.StartPercent;
             
-            return $"<b>{label}:</b> {Math.Round(startPercent * 100, 1)}%";
+            return $"{label}: {Math.Round(startPercent * 100, 1)}%";
         }
 
         public static string GetRuntimeAttributeHeader(IRuntimeAttribute runtimeAttribute)
@@ -38,11 +38,12 @@ namespace Stats.Editor
             float value = runtimeAttribute.Value;
             float maxValue = runtimeAttribute.MaxValue;
             
-            return $"<b>{name}:</b> {value} / {maxValue}";
+            return $"{name}: {value} / {maxValue}";
         }
         
         public static T GetValue<T>(SerializedProperty property)
         {
+            BindingFlags bindingFlags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
             object obj = property.serializedObject.targetObject;
 
             string[] path = property.propertyPath.Split('.');
@@ -54,9 +55,21 @@ namespace Stats.Editor
                     continue;
                 }
                 
-                BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
                 Type type = obj.GetType();
-                FieldInfo field = type.GetField(path[i], bindingFlags);
+                
+                FieldInfo field = null;
+                while (field == null)
+                {
+                    field = type.GetField(path[i], bindingFlags);
+                    
+                    if (field == null)
+                    {
+                        type = type.BaseType;
+                        if (type == null)
+                            break;
+                    }
+                }
+
                 if (field != null) obj = field.GetValue(obj);
             }
             return (T)obj;
