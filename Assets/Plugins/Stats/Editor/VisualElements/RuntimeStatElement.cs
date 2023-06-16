@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Stats.Editor
@@ -10,7 +11,6 @@ namespace Stats.Editor
         public readonly Label Label;
         
         private readonly IRuntimeStat _runtimeStat;
-        
 
         public RuntimeStatElement(IRuntimeStat runtimeStat)
         {
