@@ -95,13 +95,32 @@ After adding a component, you can specify the desired traits class through the _
 
 ![image](https://github.com/ooonush/Stats/assets/72870405/f6adc780-5ecb-412c-a1ec-b90bc6fee508)
 
-After starting the game, the **Traits** component will be ready to use. The _Inspector_ will show the values of all current **Stats** and **Attributes**. So you can watch the changes in the character traits during the game.
+After starting the game, the **Traits** component will be ready to use. The _Inspector_ will show the values of all current **Stats** and **Attributes**. So you can see and change character traits as you play.
 
-![image](https://github.com/ooonush/Stats/assets/72870405/95114a61-049b-434e-87df-118b9aec1820)
+![image](https://github.com/ooonush/Stats/assets/72870405/14eb8a22-c650-4a96-b600-d171f9997bec)
+
+Note that the Stat value changes for the Base value. And in the header of the stat the Value to which the formula and modifiers are applied is specified.
 
 ## Formulas
 
 The **formulas** are currently under development, but you can always create your own implementation by inheriting the **StatFormula** class.
+
+```csharp
+[CreateAssetMenu(menuName = "Stats/Level Formula")]
+public class LevelFormula : StatFormula
+{
+    public StatType Level;
+    [Range(0f, 1f)] public float PercentForLevel;
+
+    public override float Calculate(IRuntimeStat stat, ITraits traits)
+    {
+        IRuntimeStat level = traits.RuntimeStats.Get(Level);
+        return Mathf.Round(stat.Base + stat.Base * (level.Value - 1) * PercentForLevel);
+    }
+}
+```
+
+An example of a formula that adds a percentage to the status depending on the level.
 
 ## Scripting
 
