@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Stats
@@ -63,7 +63,6 @@ namespace Stats
             _base = statItem.Base;
             _formula = statItem.Formula;
 
-            _traits.RuntimeStats.OnValueChanged += (_, _) => RecalculateValue();
             _traits.RuntimeAttributes.OnValueChanged += (_, _) => RecalculateValue();
         }
 
@@ -77,10 +76,18 @@ namespace Stats
         {
             float prevValue = Value;
             float nextValue = CalculateValue();
-
+            
             if (Mathf.Abs(prevValue - nextValue) > float.Epsilon)
             {
                 Value = nextValue;
+
+                foreach (RuntimeStat runtimeStat in _traits.RuntimeStats)
+                {
+                    if (runtimeStat.StatType != StatType)
+                    {
+                        runtimeStat.RecalculateValue();
+                    }
+                }
 
                 OnValueChanged?.Invoke(StatType, Value - prevValue);
             }
