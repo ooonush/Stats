@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace Stats.Editor
@@ -62,8 +63,8 @@ namespace Stats.Editor
             _runtimeStatElement.Release();
             _runtimeStatElement.BaseField.RegisterValueChangedCallback(OnBaseFieldChanged);
             _valueField.RegisterValueChangedCallback(OnValueFieldChanged);
-            runtimeAttribute.OnValueChanged += OnValueChange;
-            runtimeStat.OnValueChanged += OnBaseChange;
+            runtimeAttribute.OnValueChanged += OnAttributeValueChange;
+            runtimeStat.OnValueChanged += OnMaxValueChange;
             
             UpdateValueField();
             UpdateBaseField();
@@ -120,13 +121,13 @@ namespace Stats.Editor
         private static bool EqualsFloatValue(ChangeEvent<float> evt) =>
             Math.Abs(evt.newValue - evt.previousValue) <= 0.0001;
 
-        private void OnValueChange(AttributeType attributeType, float value)
+        private void OnAttributeValueChange(AttributeType attributeType, float value)
         {
             UpdateValueField();
             UpdateRuntimeAttributeHeader();
         }
         
-        private void OnBaseChange(StatType statType, float value)
+        private void OnMaxValueChange(StatType statType, float value)
         {
             UpdateBaseField();
             UpdateRuntimeAttributeHeader();
@@ -139,7 +140,7 @@ namespace Stats.Editor
         
         private void UpdateBaseField()
         {
-            _runtimeStatElement.BaseField.value = _runtimeAttribute.MaxValue;
+            _runtimeStatElement.BaseField.value = _runtimeStat.Base;
         }
         
         private void UpdateRuntimeAttributeHeader()
@@ -149,8 +150,10 @@ namespace Stats.Editor
 
         public void ReleaseCallback()
         {
-            _runtimeAttribute.OnValueChanged -= OnValueChange;
-            _runtimeStat.OnValueChanged -= OnBaseChange;
+            _runtimeAttribute.OnValueChanged -= OnAttributeValueChange;
+            _runtimeStat.OnValueChanged -= OnMaxValueChange;
+            _runtimeStatElement.BaseField.UnregisterValueChangedCallback(OnBaseFieldChanged);
+            _valueField.UnregisterValueChangedCallback(OnValueFieldChanged);
         }
     }
 }
