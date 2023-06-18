@@ -39,10 +39,10 @@ namespace Stats
             switch (type)
             {
                 case ModifierType.Constant:
-                    _constants.Add(value);
+                    _constants.Add(new Modifier(type, value));
                     break;
                 case ModifierType.Percent:
-                    _percentages.Add(value);
+                    _percentages.Add(new Modifier(type, value));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
