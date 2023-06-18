@@ -11,6 +11,7 @@ namespace Stats
 
         public RuntimeStats RuntimeStats { get; private set; }
         public RuntimeAttributes RuntimeAttributes { get; private set; }
+        public RuntimeStatusEffects RuntimeStatusEffects { get; private set; }
 
         IRuntimeStats<IRuntimeStat> ITraits.RuntimeStats => RuntimeStats;
         IRuntimeAttributes<IRuntimeAttribute> ITraits.RuntimeAttributes => RuntimeAttributes;
@@ -21,6 +22,7 @@ namespace Stats
         {
             RuntimeStats = new RuntimeStats(this);
             RuntimeAttributes = new RuntimeAttributes(this);
+            RuntimeStatusEffects = new RuntimeStatusEffects(this);
 
             if (_traitsClass)
             {
@@ -53,6 +55,11 @@ namespace Stats
             SyncWithTraitsClass(traitsClass);
             _traitsClass = traitsClass;
             _initialized = true;
+        }
+
+        private void OnDestroy()
+        {
+            RuntimeStatusEffects.Clear();
         }
 
         private void SyncWithTraitsClass(TraitsClassBase traitsClass)
