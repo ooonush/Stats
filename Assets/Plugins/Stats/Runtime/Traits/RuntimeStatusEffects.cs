@@ -31,15 +31,22 @@ namespace Stats
 
         public void Update()
         {
+            var effectIdsToRemove = new List<string>();
+
             foreach ((string id, var activeEffects) in _effects)
             {
                 foreach (StatusEffect activeEffect in activeEffects)
                 {
                     if (!activeEffect.OnUpdate(_traits))
                     {
-                        Remove(activeEffect);
+                        effectIdsToRemove.Add(id);
                     }
                 }
+            }
+
+            foreach (string id in effectIdsToRemove)
+            {
+                Remove(id);
             }
         }
 
