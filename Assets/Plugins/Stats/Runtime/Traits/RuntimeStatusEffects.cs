@@ -13,7 +13,7 @@ namespace Stats
         {
             if (_effects.TryGetValue(statusEffect.Id, out var activeEffects))
             {
-                while (_effects.Count >= statusEffect.MaxStack)
+                while (activeEffects.Count >= statusEffect.MaxStack)
                 {
                     activeEffects.First.Value.OnEnd(_traits);
                     activeEffects.RemoveFirst();
