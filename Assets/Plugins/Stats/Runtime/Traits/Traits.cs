@@ -39,6 +39,11 @@ namespace Stats
             }
         }
 
+        private void Update()
+        {
+            RuntimeStatusEffects.Update();
+        }
+
         public void Initialize(TraitsClassBase traitsClass)
         {
             if (_initialized)
