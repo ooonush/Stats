@@ -4,7 +4,7 @@ namespace Stats
 {
     public sealed class RuntimeStatusEffects
     {
-        private readonly Dictionary<string, Stack<StatusEffect>> _effects = new();
+        private readonly Dictionary<string, LinkedList<StatusEffect>> _effects = new();
         private readonly ITraits _traits;
 
         public RuntimeStatusEffects(ITraits traits) => _traits = traits;
@@ -15,59 +15,69 @@ namespace Stats
             {
                 while (_effects.Count >= statusEffect.MaxStack)
                 {
-                    activeEffects.Pop().OnEnd(_traits);
+                    activeEffects.First.Value.OnEnd(_traits);
+                    activeEffects.RemoveFirst();
                 }
             }
             else
             {
-                activeEffects = new Stack<StatusEffect>();
+                activeEffects = new LinkedList<StatusEffect>();
                 _effects.Add(statusEffect.Id, activeEffects);
             }
 
             StatusEffect activeEffect = UnityEngine.Object.Instantiate(statusEffect);
-            activeEffects.Push(activeEffect);
+            activeEffects.AddLast(activeEffect);
             activeEffect.OnStart(_traits);
         }
 
         public void Update()
         {
-            var effectIdsToRemove = new List<string>();
+            var effectIdsToRemove = new List<StatusEffect>();
 
-            foreach ((string id, var activeEffects) in _effects)
+            foreach (var activeEffects in _effects.Values)
             {
                 foreach (StatusEffect activeEffect in activeEffects)
                 {
                     if (!activeEffect.OnUpdate(_traits))
                     {
-                        effectIdsToRemove.Add(id);
+                        effectIdsToRemove.Add(activeEffect);
                     }
                 }
             }
 
-            foreach (string id in effectIdsToRemove)
+            foreach (StatusEffect statusEffect in effectIdsToRemove)
             {
-                Remove(id);
+                Remove(statusEffect);
             }
         }
 
-        public void Remove(StatusEffect statusEffect) => Remove(statusEffect.Id);
+        public void Remove(StatusEffect statusEffect)
+        {
+            var activeEffects = _effects[statusEffect.Id];
+            var activeEffectNode = activeEffects.Find(statusEffect);
+            if (activeEffectNode != null)
+            {
+                activeEffectNode.Value.OnEnd(_traits);
+                activeEffects.Remove(activeEffectNode);
+            }
+            if (activeEffects.Count == 0)
+            {
+                _effects.Remove(statusEffect.Id);
+            }
+        }
 
         public void Clear()
         {
             foreach (string statusEffectId in _effects.Keys)
             {
-                Remove(statusEffectId);
+                var activeEffects = _effects[statusEffectId];
+                foreach (StatusEffect activeEffect in activeEffects)
+                {
+                    activeEffect.OnEnd(_traits);
+                }
+                activeEffects.Clear();
             }
-        }
-
-        private void Remove(string statusEffectId)
-        {
-            var activeEffects = _effects[statusEffectId];
-            activeEffects.Pop().OnEnd(_traits);
-            if (activeEffects.Count == 0)
-            {
-                _effects.Remove(statusEffectId);
-            }
+            _effects.Clear();
         }
     }
 }
