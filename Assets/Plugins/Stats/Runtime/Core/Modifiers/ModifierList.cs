@@ -15,10 +15,9 @@ namespace Stats
 
         public Modifier this[int index] => _list[index];
 
-        public Modifier Add(float value)
+        public Modifier Add(Modifier modifier)
         {
-            Value += value;
-            var modifier = new Modifier(value);
+            Value += modifier.Value;
             _list.Add(modifier);
 
             return modifier;
