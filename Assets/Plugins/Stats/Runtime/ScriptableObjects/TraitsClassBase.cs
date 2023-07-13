@@ -105,14 +105,20 @@ namespace Stats
 
         private static IEnumerable<FieldInfo> GetFieldsByType(Type type)
         {
-            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
-            if (Fields.TryGetValue(type, out var byType))
+            if (type == null)
             {
-                return byType;
+                return Array.Empty<FieldInfo>();
             }
 
-            Fields.Add(type, type.GetFields(bindingFlags));
-            return Fields[type];
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.DeclaredOnly;
+            var fields = new List<FieldInfo>(type.GetFields(flags));
+
+            if (type.BaseType != null)
+            {
+                fields.AddRange(GetFieldsByType(type.BaseType));
+            }
+
+            return fields;
         }
     }
 }
