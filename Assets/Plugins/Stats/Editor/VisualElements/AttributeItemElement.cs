@@ -138,10 +138,7 @@ namespace Stats.Editor
 
         private void UpdateHeaderText()
         {
-            AttributeType attributeValue = _oldAttributeType;
-            _foldout.text = !attributeValue ? "<color=yellow>Select Attribute</color>"
-                : StatsEditorHelper.GetAttributeItemHeader(_attributeItem,
-                    StatsEditorHelper.GetLabel<AttributeItem>(_property));
+            _foldout.text = StatsEditorHelper.GetAttributeItemHeader(_attributeItem, _property);
         }
     }
 }

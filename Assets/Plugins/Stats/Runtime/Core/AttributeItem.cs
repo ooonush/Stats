@@ -11,7 +11,7 @@ namespace Stats
         [SerializeField] private bool _changeStartPercent;
         [SerializeField] [Range(0f, 1f)] private float _startPercent = 1f;
 
-        public AttributeType AttributeType => _attributeType;
+        public AttributeType AttributeType => _attributeType? _attributeType : null;
 
         public float MinValue => _attributeType ? _attributeType.MinValue : 0f;
         public StatType MaxValueType => _attributeType ? _attributeType.MaxValueType : null;

@@ -14,7 +14,7 @@ namespace Stats
         [SerializeField] private bool _changeFormula;
         [SerializeField] private StatFormula _formula;
 
-        public StatType StatType => _stat.Type;
+        public StatType StatType => _stat? _stat.Type : null;
 
         public float Base
         {
