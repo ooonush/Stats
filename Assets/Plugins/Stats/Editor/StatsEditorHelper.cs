@@ -7,9 +7,12 @@ namespace Stats.Editor
 {
     public static class StatsEditorHelper
     {
-        public static string GetStatItemHeader (StatItem statItem, string label)
+        private const BindingFlags Flags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
+        
+        public static string GetStatItemHeader (StatItem statItem, SerializedProperty property)
         {
-            return $"{label}: {statItem.Base}";
+            var itemName = GetItemName<StatItem>(property);
+            return statItem.StatType == null ? itemName : $"{itemName}: {statItem.Base}";
         }
 
         public static string GetRuntimeStatHeader(IRuntimeStat runtimeStat)
@@ -25,25 +28,25 @@ namespace Stats.Editor
             return $"{name}: {value - modifiersValue} {modifiersText}";
         }
         
-        public static string GetAttributeItemHeader(AttributeItem attributeItem, string label)
+        public static string GetAttributeItemHeader(AttributeItem attributeItem, SerializedProperty property)
         {
-            float startPercent = attributeItem.StartPercent;
+            var startPercent = attributeItem.StartPercent;
+            var itemName = GetItemName<AttributeItem>(property);
             
-            return $"{label}: {Math.Round(startPercent * 100, 1)}%";
+            return attributeItem.AttributeType == null ? itemName : $"{itemName}: {Math.Round(startPercent * 100, 1)}%";
         }
 
         public static string GetRuntimeAttributeHeader(IRuntimeAttribute runtimeAttribute)
         {
-            string name = runtimeAttribute.AttributeType.name;
-            float value = runtimeAttribute.Value;
-            float maxValue = runtimeAttribute.MaxValue;
+            var name = runtimeAttribute.AttributeType.name;
+            var value = runtimeAttribute.Value;
+            var maxValue = runtimeAttribute.MaxValue;
             
             return $"{name}: {value} / {maxValue}";
         }
         
         public static T GetValue<T>(SerializedProperty property)
         {
-            BindingFlags bindingFlags = BindingFlags.Default | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy;
             object obj = property.serializedObject.targetObject;
 
             string[] path = property.propertyPath.Split('.');
@@ -60,7 +63,7 @@ namespace Stats.Editor
                 FieldInfo field = null;
                 while (field == null)
                 {
-                    field = type.GetField(path[i], bindingFlags);
+                    field = type.GetField(path[i], Flags);
                     
                     if (field == null)
                     {
@@ -75,24 +78,35 @@ namespace Stats.Editor
             return (T)obj;
         }
 
-        public static string GetLabel<T>(SerializedProperty property)
+        private static string GetItemName<T>(SerializedProperty property)
         {
             if (property.name == "data" && property.depth > 0 && property.displayName.Contains("Element"))
             {
-                return GetTypeName<T>(property);
+                return GetItemTypeName<T>(property);
             }
             
             return property.displayName;
         }
 
-        private static string GetTypeName<T>(SerializedProperty property)
+        private static string GetItemTypeName<T>(SerializedProperty property)
         {
+            var label = "";
+            
             if (typeof(T) == typeof(AttributeItem))
             {
-                return GetValue<AttributeItem>(property).AttributeType.name;
+                AttributeType type = GetValue<AttributeItem>(property).AttributeType;
+
+                label = type == null ? "<color=yellow>Select Attribute</color>" : type.name;
             }
 
-            return typeof(T) == typeof(StatItem) ? GetValue<StatItem>(property).StatType.name : "";
+            if (typeof(T) == typeof(StatItem))
+            {
+                StatType type = GetValue<StatItem>(property).StatType;
+
+                label = type == null ? "<color=yellow>Select Stat</color>" : type.name;
+            }
+
+            return label;
         }
     }
 }

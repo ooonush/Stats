@@ -187,9 +187,7 @@ namespace Stats.Editor
 
         private void UpdateHeaderText()
         {
-            _foldout.text = _stat.objectReferenceValue == null ? 
-                "<color=yellow>Select Stat</color>" : 
-                StatsEditorHelper.GetStatItemHeader(_statItem, StatsEditorHelper.GetLabel<StatItem>(_property));
+            _foldout.text = StatsEditorHelper.GetStatItemHeader(_statItem, _property);
         }
     }
 }
