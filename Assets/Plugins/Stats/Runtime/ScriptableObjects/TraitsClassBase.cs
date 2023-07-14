@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using UnityEngine;
 
 namespace Stats
 {
@@ -51,7 +50,10 @@ namespace Stats
             }
         }
 
-        private void OnValidate() => InitializeItems();
+        protected override void OnValidation()
+        {
+            InitializeItems();
+        }
 
         private void InitializeItems()
         {
