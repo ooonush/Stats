@@ -18,9 +18,10 @@ namespace Stats
 
         private void OnValidate()
         {
-            if (string.IsNullOrEmpty(_id))
+            AssetDatabase.TryGetGUIDAndLocalFileIdentifier(this, out string guid, out long _);
+            if (_id != null && guid != _id)
             {
-                AssetDatabase.TryGetGUIDAndLocalFileIdentifier(this, out _id, out long _);
+                _id = guid;
             }
         }
     }
