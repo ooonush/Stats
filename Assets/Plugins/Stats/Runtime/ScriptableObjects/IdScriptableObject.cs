@@ -19,7 +19,7 @@ namespace Stats
         private void OnValidate()
         {
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier(this, out string guid, out long _);
-            if (_id != null && guid != _id)
+            if (guid != null && guid != _id)
             {
                 _id = guid;
             }
