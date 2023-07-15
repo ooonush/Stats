@@ -17,7 +17,7 @@ Requires a version of **Unity 2022.3** or newer. You can add `https://github.com
 
 ![image](https://github.com/ooonush/Stats/assets/72870405/f96b9c3f-4e90-43ef-8f4b-a9205a45b866)
 
-If you want to set a target version, **Stats** uses the *.*.* release tag so you can specify a version like #0.0.1-pre.2. For example `https://github.com/ooonush/Stats.git?path=Assets/Plugins/Stats#0.0.1-pre.2`.
+If you want to set a target version, **Stats** uses the *.*.* release tag so you can specify a version like #0.0.2-pre.1. For example `https://github.com/ooonush/Stats.git?path=Assets/Plugins/Stats#0.0.2-pre.1`.
 
 ## Basic Concepts
 
