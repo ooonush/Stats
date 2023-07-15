@@ -129,7 +129,7 @@ In addition to formulas, often games require you to change your character's stat
 
 **Modifiers** are **Constant** or **Percent** numeric values that are added to **Stats** at _runtime_. The **Constant** modifier adds a _fixed_ value to the base value of the stat. And **Percent**, adds a specified _percentage_ to the base value of the stat.
 
-Modifiers are only added to stats during runtime using [code](https://github.com/ooonush/Stats/blob/main/README.md#L250).
+Modifiers are only added to stats during runtime using code.
 
 ## Status Effects
 
