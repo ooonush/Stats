@@ -22,6 +22,7 @@ If you want to set a target version, **Stats** uses the *.*.* release tag so you
 ## Basic Concepts
 
 ### Stats
+
 **Stats** are specific numeric traits of a character. These values can be calculated by **formula**, depend on other **stats**, change and **modified** during the game.
 
 For example, a stat can be a `strength`, which depends on the level of the character or the weapon he is wielding.
@@ -103,7 +104,7 @@ Note that the Stat value changes for the Base value. And in the header of the st
 
 ## Formulas
 
-The **formulas** are currently under development, but you can always create your own implementation by inheriting the **StatFormula** class.
+**The **formulas** are currently under development, but you can always create your own implementation by inheriting the **StatFormula** class.**
 
 ```csharp
 [CreateAssetMenu(menuName = "Stats/Level Formula")]
@@ -121,6 +122,20 @@ public class LevelFormula : StatFormula
 ```
 
 An example of a formula that adds a percentage to the status depending on the level.
+
+## Modifiers
+
+In addition to formulas, often games require you to change your character's stats based on equipment. Modifiers can be added and removed at any time. For example, if we wanted to increase a character's _MaxHealth_ when they put on _Armor_, we would add the modifier.
+
+**Modifiers** are **Constant** or **Percent** numeric values that are added to **Stats** at _runtime_. The **Constant** modifier adds a _fixed_ value to the base value of the stat. And **Percent**, adds a specified _percentage_ to the base value of the stat.
+
+Modifiers are only added to stats during runtime using [code](https://github.com/ooonush/Stats/blob/main/README.md#L250).
+
+## Status Effects
+
+Status effects are similar to modifiers, but can perform complex logic. For example, status effects can be used to make a player affected by poison, which takes away health for a certain period of time.
+
+To create a status effect, you need to inherit the **StatusEffect** class.
 
 ## Scripting
 
@@ -232,8 +247,6 @@ The **Get()** method returns **RuntimeStat** and **RuntimeAttribute**. These are
 **Ratio** - The Value to **MaxValue** ratio.
 
 #### Modifiers
-
-**Modifiers** are **Constant** or **Percent** numeric values that are added to **Stats** at _runtime_. The **Constant** modifier adds a _fixed_ value to the base value of the stat. And **Percent**, adds a specified _percentage_ to the base value of the stat.
 
 You can add **modifiers** when a character puts on some `armor`, and remove a modifier when a character removes an `armor`.
 
