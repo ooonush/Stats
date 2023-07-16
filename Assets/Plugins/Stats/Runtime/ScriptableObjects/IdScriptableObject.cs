@@ -1,5 +1,7 @@
 ﻿using System;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Stats
@@ -18,12 +20,13 @@ namespace Stats
 
         protected void OnValidate()
         {
+#if UNITY_EDITOR
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier(this, out string guid, out long _);
             if (guid != null && guid != _id)
             {
                 _id = guid;
             }
-
+#endif
             OnValidation();
         }
 
