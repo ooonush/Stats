@@ -5,42 +5,61 @@ using System.Collections.Generic;
 namespace Stats
 {
     [Serializable]
-    public sealed class ModifierList : IReadOnlyList<Modifier>
+    public class ModifierList<TModifier, TNumber> : IReadOnlyList<TModifier>
+        where TModifier : struct, IModifier<TNumber>
+        where TNumber : IStatNumber<TNumber>
     {
-        private readonly List<Modifier> _list = new();
-
-        public float Value { get; private set; }
-
+        internal TNumber PositiveValue { get; private set; }
+        internal TNumber NegativeValue { get; private set; }
         public int Count => _list.Count;
+        public TModifier this[int index] => _list[index];
 
-        public Modifier this[int index] => _list[index];
+        private readonly List<TModifier> _list = new();
 
-        public Modifier Add(Modifier modifier)
+        public void Add(TModifier modifier)
         {
-            Value += modifier.Value;
+            switch (modifier.ModifierType)
+            {
+                case ModifierType.Positive:
+                    PositiveValue = PositiveValue.Add(modifier.Value);
+                    break;
+                case ModifierType.Negative:
+                    NegativeValue = NegativeValue.Add(modifier.Value);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             _list.Add(modifier);
-
-            return modifier;
         }
 
-        public bool Remove(float value)
+        public bool Remove(TModifier modifier)
         {
             for (int i = _list.Count - 1; i >= 0; --i)
             {
-                if (Math.Abs(_list[i].Value - value) >= float.Epsilon) continue;
-                Value -= _list[i].Value;
-                _list.RemoveAt(i);
-
-                return true;
+                if (_list[i].Value.Equals(modifier.Value) && _list[i].ModifierType == modifier.ModifierType)
+                {
+                    switch (modifier.ModifierType)
+                    {
+                        case ModifierType.Positive:
+                            PositiveValue = PositiveValue.Subtract(modifier.Value);
+                            break;
+                        case ModifierType.Negative:
+                            NegativeValue = NegativeValue.Subtract(modifier.Value);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    
+                    _list.RemoveAt(i);
+                    return true;
+                }
             }
-
+            
             return false;
         }
 
         public void Clear() => _list.Clear();
-
-        IEnumerator<Modifier> IEnumerable<Modifier>.GetEnumerator() => _list.GetEnumerator();
-
         public IEnumerator GetEnumerator() => ((IEnumerable)_list).GetEnumerator();
+        IEnumerator<TModifier> IEnumerable<TModifier>.GetEnumerator() => _list.GetEnumerator();
     }
 }

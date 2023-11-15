@@ -1,24 +1,31 @@
 ﻿using System;
-using UnityEngine;
 
 namespace Stats
 {
-    public sealed class RuntimeAttribute : IRuntimeAttribute
+    public abstract class RuntimeAttribute
     {
-        public readonly Traits Traits;
-        public AttributeType AttributeType => _attributeItem.AttributeType;
+        internal event Action OnValueChanged;
+        internal abstract void InitializeStartValues();
 
-        public float MaxValue => _attributeItem.MaxValueType != null
-            ? Traits.RuntimeStats.Get(_attributeItem.MaxValueType).Value
-            : 0f;
+        protected void InvokeOnValueChanged() => OnValueChanged?.Invoke();
+    }
 
-        public float MinValue { get; }
+    public sealed class RuntimeAttribute<TNumber> : RuntimeAttribute, IRuntimeAttribute<TNumber> where TNumber : IStatNumber<TNumber>
+    {
+        private readonly Traits _traits;
+        public AttributeId<TNumber> AttributeId => _attribute.AttributeId;
+
+        public RuntimeStat<TNumber> MaxRuntimeStat => _attribute.MaxValueStat != null
+            ? _traits.RuntimeStats.Get(_attribute.MaxValueStat.StatId)
+            : default;
+
+        public TNumber MinValue { get; }
 
         private bool _initialized;
-        private float _value;
-        private readonly AttributeItem _attributeItem;
+        private TNumber _value;
+        private readonly IAttribute<TNumber> _attribute;
 
-        public float Value
+        public TNumber Value
         {
             get
             {
@@ -31,44 +38,49 @@ namespace Stats
             }
             set
             {
-                float oldValue = Value;
-                float newValue = Math.Clamp(value, MinValue, MaxValue);
-                if (Math.Abs(_value - newValue) < float.Epsilon) return;
+                TNumber oldValue = Value;
+                TNumber newValue = TMath.Clamp(value, MinValue, MaxRuntimeStat.Value);
+                if (!_value.Equals(newValue)) return;
 
                 _value = newValue;
-                OnValueChanged?.Invoke(AttributeType, newValue - oldValue);
+                OnValueChanged?.Invoke(AttributeId, newValue.Subtract(oldValue));
+                InvokeOnValueChanged();
             }
         }
 
-        public float Ratio => (Value - MinValue) / (MaxValue - MinValue);
+        public new event AttributeValueChangedAction<TNumber> OnValueChanged;
 
-        public event AttributeValueChangedAction OnValueChanged;
-
-        public RuntimeAttribute(Traits traits, AttributeItem attributeItem)
+        public RuntimeAttribute(Traits traits, IAttribute<TNumber> attribute)
         {
-            Traits = traits;
-            _attributeItem = attributeItem;
+            _traits = traits;
+            _attribute = attribute;
 
-            MinValue = attributeItem.MinValue;
+            MinValue = attribute.MinValue;
 
-            if (attributeItem.MaxValueType)
+            if (attribute.MaxValueStat != null)
             {
-                traits.RuntimeStats.Get(attributeItem.MaxValueType).OnValueChanged += (_, _) => OnMaxValueChanged();
+                traits.RuntimeStats.Get(attribute.MaxValueStat.StatId).OnValueChanged += (_, _) => OnMaxValueChanged();
             }
         }
 
-        internal void InitializeStartValues()
+        internal override void InitializeStartValues()
         {
             _initialized = true;
-            _value = Mathf.Lerp(MinValue, MaxValue, _attributeItem.StartPercent);
+            _value = TMath.Lerp(_attribute.StartPercent, MinValue, MaxRuntimeStat.Value);
         }
 
         private void OnMaxValueChanged()
         {
-            float value = Math.Clamp(_value, MinValue, MaxValue);
-            if (Math.Abs(Value - value) < float.Epsilon) return;
+            TNumber value = TMath.Clamp(_value, MinValue, MaxRuntimeStat.Value);
+            if (!Value.Equals(value))
+            {
+                Value = value;
+            }
+        }
 
-            Value = value;
+        public override string ToString()
+        {
+            return $"{AttributeId}: {Value}";
         }
     }
 }

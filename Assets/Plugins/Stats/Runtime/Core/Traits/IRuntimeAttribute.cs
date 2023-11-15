@@ -1,15 +1,12 @@
 namespace Stats
 {
-    public interface IRuntimeAttribute
+    public interface IRuntimeAttribute<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        float MinValue { get; }
-        float MaxValue { get; }
-        float Value { get; set; }
-        /// <summary>
-        /// <see cref="Value"/> to <see cref="MaxValue"/> ratio
-        /// </summary>
-        float Ratio { get; }
-        AttributeType AttributeType { get; }
-        event AttributeValueChangedAction OnValueChanged;
+        TNumber MinValue { get; }
+        TNumber Value { get; set; }
+
+        AttributeId<TNumber> AttributeId { get; }
+        RuntimeStat<TNumber> MaxRuntimeStat { get; }
+        event AttributeValueChangedAction<TNumber> OnValueChanged;
     }
 }

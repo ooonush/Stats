@@ -1,5 +1,4 @@
-﻿using System;
-#if UNITY_EDITOR
+﻿#if UNITY_EDITOR
 using UnityEditor;
 #endif
 using UnityEngine;
@@ -10,7 +9,6 @@ namespace Stats
     /// ScriptableObject that stores a Id for unique identification. The population of this field is implemented
     /// inside an Editor script.
     /// </summary>
-    [Serializable]
     public abstract class IdScriptableObject : ScriptableObject
     {
         [HideInInspector]

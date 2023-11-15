@@ -2,7 +2,9 @@
     "name": "Stats.Editor",
     "rootNamespace": "Stats.Editor",
     "references": [
-        "GUID:400eba5ed90ebbe4aadff4b8ac6f66d8"
+        "GUID:400eba5ed90ebbe4aadff4b8ac6f66d8",
+        "GUID:b048c4431fac05e4891c2770ac488caa",
+        "GUID:04a853860dc9730418dc384f1c8b0d9d"
     ],
     "includePlatforms": [
         "Editor"

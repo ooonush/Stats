@@ -1,62 +1,51 @@
-using System;
 using System.Collections.Generic;
 
 namespace Stats
 {
-    public sealed class Modifiers
+    public sealed class Modifiers<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        private readonly ModifierList _percentages = new();
-        private readonly ModifierList _constants = new();
+        private readonly PercentageModifierList _percentages = new();
+        private readonly ConstantModifierList<TNumber> _constants = new();
 
-        public IReadOnlyList<Modifier> Percentages => _percentages;
-        public IReadOnlyList<Modifier> Constants => _constants;
+        public IReadOnlyList<PercentageModifier> Percentages => _percentages;
+        public IReadOnlyList<ConstantModifier<TNumber>> Constants => _constants;
 
-        public void CopyDataFrom(Modifiers modifiers)
+        public void CopyDataFrom(Modifiers<TNumber> modifiers)
         {
-            _percentages.Clear();
-            _constants.Clear();
+            Clear();
 
-            foreach (Modifier modifier in modifiers.Percentages)
+            foreach (PercentageModifier modifier in modifiers.Percentages)
             {
-                Add(ModifierType.Percent, modifier.Value);
+                Add(modifier);
             }
-            foreach (Modifier modifier in modifiers.Constants)
+
+            foreach (var modifier in modifiers.Constants)
             {
-                Add(ModifierType.Constant, modifier.Value);
+                Add(modifier);
             }
         }
 
-        public float Calculate(float value)
+        public TNumber Calculate(TNumber value)
         {
-            value *= 1f + _percentages.Value;
-            value += _constants.Value;
-
+            value = value.Add(value.CalculatePercent(_percentages.PositiveValue - _percentages.NegativeValue));
+            
+            value = value.Add(_constants.PositiveValue);
+            value = value.Add(_constants.NegativeValue);
             return value;
         }
 
-        public void Add(ModifierType type, float value)
-        {
-            switch (type)
-            {
-                case ModifierType.Constant:
-                    _constants.Add(new Modifier(type, value));
-                    break;
-                case ModifierType.Percent:
-                    _percentages.Add(new Modifier(type, value));
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
-            }
-        }
+        public void Add(PercentageModifier modifier) => _percentages.Add(modifier);
 
-        public bool Remove(ModifierType type, float value)
+        public void Add(ConstantModifier<TNumber> modifier) => _constants.Add(modifier);
+
+        public bool Remove(ConstantModifier<TNumber> modifier) => _constants.Remove(modifier);
+
+        public bool Remove(PercentageModifier modifier) => _percentages.Remove(modifier);
+
+        private void Clear()
         {
-            return type switch
-            {
-                ModifierType.Constant => _constants.Remove(value),
-                ModifierType.Percent => _percentages.Remove(value),
-                _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
-            };
+            _percentages.Clear();
+            _constants.Clear();
         }
     }
 }

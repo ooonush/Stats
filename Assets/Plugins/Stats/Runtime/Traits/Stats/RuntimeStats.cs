@@ -1,79 +1,116 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Type = System.Type;
 
 namespace Stats
 {
-    public sealed class RuntimeStats : IRuntimeStats<RuntimeStat>
+    public sealed class RuntimeStats : IRuntimeStats, IEnumerable<RuntimeStat>
     {
         private readonly Traits _traits;
-        private readonly Dictionary<StatType, RuntimeStat> _stats = new();
+        private readonly Dictionary<string, RuntimeStat> _stats = new();
 
         public int Count => _stats.Values.Count;
-
-        public event StatValueChangedAction OnValueChanged;
 
         internal RuntimeStats(Traits traits)
         {
             _traits = traits;
         }
+        private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
-        internal void SyncWithTraitsClass(TraitsClassBase traitsClass)
+        internal void SyncWithTraitsClass(ITraitsClass traitsClass)
         {
             ClearStats();
-
-            foreach (StatItem statItem in traitsClass.StatItems)
+            
+            foreach ((string statId, object stat) in traitsClass.StatItems)
             {
-                if (statItem == null || !statItem.StatType)
+                foreach (Type statInterface in stat.GetType().GetInterfaces())
                 {
-                    throw new NullReferenceException("No StatType reference found in TraitsClass");
+                    if (statInterface.IsGenericType && statInterface.GetGenericTypeDefinition() == typeof(IStat<>))
+                    {
+                        Type genericStatNumberType = statInterface.GenericTypeArguments[0];
+                        Type runtimeStat = typeof(RuntimeStat<>).MakeGenericType(genericStatNumberType);
+                        
+                        object genericRuntimeStat = Activator.CreateInstance(runtimeStat, _traits, stat);
+                        
+                        if (_stats.ContainsKey(statId))
+                        {
+                            throw new Exception($"Stat with id \"{statId}\" already exists");
+                        }
+                        
+                        _stats[statId] = (RuntimeStat)genericRuntimeStat;
+                    }
                 }
-
-                StatType statType = statItem.StatType;
-                if (_stats.ContainsKey(statType))
-                {
-                    throw new Exception($"Stat with StatType \"{statType.name}\" already exists");
-                }
-
-                var runtimeStat = new RuntimeStat(_traits, statItem);
-
-                runtimeStat.OnValueChanged += InvokeOnValueChanged;
-                _stats[statType] = runtimeStat;
             }
-        }
-
-        private void InvokeOnValueChanged(StatType statType, float change)
-        {
-            OnValueChanged?.Invoke(statType, change);
+            
+            // foreach ((string attributeId, object attribute) in traitsClass.AttributeItems)
+            // {
+            //     foreach (Type attributeInterface in attribute.GetType().GetInterfaces())
+            //     {
+            //         if (attributeInterface.IsGenericType && attributeInterface.GetGenericTypeDefinition() == typeof(IAttribute<>))
+            //         {
+            //             object stat = attributeInterface.GetProperty("MaxValueStat")!.GetValue(attribute);
+            //             Type genericStatNumberType = attributeInterface.GenericTypeArguments[0];
+            //             Type runtimeStat = typeof(RuntimeStat<>).MakeGenericType(genericStatNumberType);
+            //
+            //             object genericRuntimeStat = Activator.CreateInstance(runtimeStat, _traits, stat);
+            //
+            //             if (_stats.ContainsKey(attributeId))
+            //             {
+            //                 throw new Exception($"Stat with id \"{attributeId}\" already exists");
+            //             }
+            //
+            //             _stats[attributeId] = (RuntimeStat)genericRuntimeStat;
+            //         }
+            //     }
+            // }
         }
 
         private void ClearStats()
         {
-            var runtimeAttributes = new List<RuntimeStat>(_stats.Values);
-            foreach (RuntimeStat runtimeStat in runtimeAttributes)
+            foreach (string statId in _stats.Keys.ToArray())
             {
-                runtimeStat.OnValueChanged -= InvokeOnValueChanged;
-                _stats.Remove(runtimeStat.StatType);
+                _stats.Remove(statId);
             }
         }
 
-        public RuntimeStat Get(StatType statType)
+        // private RuntimeStat Get(StatIdAsset statIdAsset)
+        // {
+        //     if (statIdAsset == null) throw new ArgumentNullException(nameof(statIdAsset));
+        //
+        //     try
+        //     {
+        //         return _stats[statIdAsset];
+        //     }
+        //     catch (Exception exception)
+        //     {
+        //         throw new ArgumentException("StatType not found in RuntimeStats", nameof(statIdAsset), exception);
+        //     }
+        // }
+
+        IRuntimeStat<TNumber> IRuntimeStats.Get<TNumber>(StatId<TNumber> statId) => Get(statId);
+
+        public RuntimeStat<TNumber> Get<TNumber>(StatId<TNumber> statId) where TNumber : IStatNumber<TNumber>
         {
-            if (statType == null) throw new ArgumentNullException(nameof(statType));
-
-            try
-            {
-                return _stats[statType];
-            }
-            catch (Exception exception)
-            {
-                throw new ArgumentException("StatType not found in RuntimeStats", nameof(statType), exception);
-            }
+            return (RuntimeStat<TNumber>)_stats[statId];
         }
 
-        public bool Contains(StatType statType) => _stats.ContainsKey(statType);
+        public bool Contains<TNumber>(StatId<TNumber> statId) where TNumber : IStatNumber<TNumber>
+        {
+            return _stats.ContainsKey(statId);
+        }
 
-        public IEnumerator<RuntimeStat> GetEnumerator() => _stats.Values.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        // public IEnumerator<RuntimeStat> GetEnumerator() => _stats.Values.GetEnumerator();
+        public IEnumerator<RuntimeStat> GetEnumerator()
+        {
+            return _stats.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

@@ -7,14 +7,14 @@ namespace Stats
     [DefaultExecutionOrder(-short.MinValue)]
     public sealed class Traits : MonoBehaviour, ITraits
     {
-        [SerializeField] private TraitsClassBase _traitsClass;
+        [SerializeField] private TraitsClassAsset _traitsClass;
 
         public RuntimeStats RuntimeStats { get; private set; }
         public RuntimeAttributes RuntimeAttributes { get; private set; }
         public RuntimeStatusEffects RuntimeStatusEffects { get; private set; }
 
-        IRuntimeStats<IRuntimeStat> ITraits.RuntimeStats => RuntimeStats;
-        IRuntimeAttributes<IRuntimeAttribute> ITraits.RuntimeAttributes => RuntimeAttributes;
+        IRuntimeStats ITraits.RuntimeStats => RuntimeStats;
+        IRuntimeAttributes ITraits.RuntimeAttributes => RuntimeAttributes;
 
         private bool _initialized;
 
@@ -44,7 +44,7 @@ namespace Stats
             RuntimeStatusEffects.Update();
         }
 
-        public void Initialize(TraitsClassBase traitsClass)
+        public void Initialize(TraitsClassAsset traitsClass)
         {
             if (_initialized)
             {
@@ -67,7 +67,7 @@ namespace Stats
             RuntimeStatusEffects.Clear();
         }
 
-        private void SyncWithTraitsClass(TraitsClassBase traitsClass)
+        private void SyncWithTraitsClass(ITraitsClass traitsClass)
         {
             RuntimeStats.SyncWithTraitsClass(traitsClass);
             RuntimeAttributes.SyncWithTraitsClass(traitsClass);

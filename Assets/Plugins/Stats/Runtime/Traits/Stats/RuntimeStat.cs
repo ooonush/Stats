@@ -1,35 +1,40 @@
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Stats
 {
-    public sealed class RuntimeStat : IRuntimeStat
+    public abstract class RuntimeStat
     {
-        private readonly Modifiers _modifiers;
+        protected internal abstract void RecalculateValue();
+        internal abstract void InitializeStartValues();
+    }
+
+    public sealed class RuntimeStat<TNumber> : RuntimeStat, IRuntimeStat<TNumber> where TNumber : IStatNumber<TNumber>
+    {
+        private readonly Modifiers<TNumber> _modifiers;
         private readonly Traits _traits;
-        private readonly StatFormula _formula;
+        private readonly StatFormula<TNumber> _formula;
 
-        public IReadOnlyList<Modifier> ConstantModifiers => _modifiers.Constants;
-        public IReadOnlyList<Modifier> PercentageModifiers => _modifiers.Constants;
+        public IReadOnlyList<ConstantModifier<TNumber>> ConstantModifiers => _modifiers.Constants;
+        public IReadOnlyList<ConstantModifier<TNumber>> PercentageModifiers => _modifiers.Constants;
 
-        public StatType StatType { get; }
+        public StatId<TNumber> StatId { get; }
 
-        private float _base;
+        private TNumber _base;
 
-        public float Base
+        public TNumber Base
         {
             get => _base;
             set
             {
-                if (Mathf.Abs(_base - value) < float.Epsilon) return;
+                if (_base.Equals(value)) return;
                 SetBase(value);
             }
         }
 
         private bool _initialized;
-        private float _value;
+        private TNumber _value;
 
-        public float Value
+        public TNumber Value
         {
             get
             {
@@ -43,81 +48,99 @@ namespace Stats
             private set => _value = value;
         }
 
-        public float ModifiersValue
+        public TNumber ModifiersValue
         {
             get
             {
-                float value = _formula ? _formula.Calculate(this, _traits) : _base;
-                return _modifiers.Calculate(value) - value;
+                TNumber value = _formula ? _formula.Calculate(this, _traits) : _base;
+                return _modifiers.Calculate(value).Subtract(value);
             }
         }
 
-        public event StatValueChangedAction OnValueChanged;
+        public event StatValueChangedAction<TNumber> OnValueChanged;
 
-        public RuntimeStat(Traits traits, StatItem statItem)
+        public RuntimeStat(Traits traits, IStat<TNumber> stat)
         {
             _traits = traits;
-            StatType = statItem.StatType;
-            _modifiers = new Modifiers();
-
-            _base = statItem.Base;
-            _formula = statItem.Formula;
-
-            _traits.RuntimeAttributes.OnValueChanged += (_, _) => RecalculateValue();
+            StatId = stat.StatId;
+            _modifiers = new Modifiers<TNumber>();
+            
+            _base = stat.Base;
+            _formula = stat.Formula;
+            
+            _traits.RuntimeAttributes.OnValueChanged += RecalculateValue;
         }
 
-        internal void InitializeStartValues()
+        internal override void InitializeStartValues()
         {
             _initialized = true;
             _value = CalculateValue();
         }
 
-        private void RecalculateValue()
+        protected internal override void RecalculateValue()
         {
-            float prevValue = Value;
-            float nextValue = CalculateValue();
-            
-            if (Mathf.Abs(prevValue - nextValue) > float.Epsilon)
+            TNumber prevValue = Value;
+            TNumber nextValue = CalculateValue();
+
+            if (prevValue.Equals(nextValue)) return;
+
+            Value = nextValue;
+
+            foreach (RuntimeStat runtimeStat in _traits.RuntimeStats)
             {
-                Value = nextValue;
-
-                foreach (RuntimeStat runtimeStat in _traits.RuntimeStats)
+                if (runtimeStat != this)
                 {
-                    if (runtimeStat.StatType != StatType)
-                    {
-                        runtimeStat.RecalculateValue();
-                    }
+                    runtimeStat.RecalculateValue();
                 }
-
-                OnValueChanged?.Invoke(StatType, Value - prevValue);
             }
+
+            OnValueChanged?.Invoke(StatId, Value.Subtract(prevValue));
         }
 
-        private float CalculateValue()
+        private TNumber CalculateValue()
         {
-            float value = _formula ? _formula.Calculate(this, _traits) : _base;
-            float nextValue = _modifiers.Calculate(value);
+            TNumber value = _formula ? _formula.Calculate(this, _traits) : _base;
+            TNumber nextValue = _modifiers.Calculate(value);
             return nextValue;
         }
 
-        private void SetBase(float value)
+        private void SetBase(TNumber value)
         {
             _base = value;
             RecalculateValue();
         }
 
-        public void AddModifier(ModifierType modifierType, float value)
+        public void AddModifier(ConstantModifier<TNumber> modifier)
         {
-            _modifiers.Add(modifierType, value);
+            _modifiers.Add(modifier);
             RecalculateValue();
         }
 
-        public bool RemoveModifier(ModifierType modifierType, float value)
+        public void AddModifier(PercentageModifier modifier)
         {
-            bool success = _modifiers.Remove(modifierType, value);
+            _modifiers.Add(modifier);
+            RecalculateValue();
+        }
+
+        public bool RemoveModifier(ConstantModifier<TNumber> modifier)
+        {
+            bool success = _modifiers.Remove(modifier);
 
             if (success) RecalculateValue();
             return success;
+        }
+
+        public bool RemoveModifier(PercentageModifier modifier)
+        {
+            bool success = _modifiers.Remove(modifier);
+
+            if (success) RecalculateValue();
+            return success;
+        }
+
+        public override string ToString()
+        {
+            return $"{StatId}: {Value}";
         }
     }
 }

@@ -2,7 +2,7 @@ namespace Stats
 {
     public interface ITraits
     {
-        public IRuntimeStats<IRuntimeStat> RuntimeStats { get; }
-        public IRuntimeAttributes<IRuntimeAttribute> RuntimeAttributes { get; }
+        public IRuntimeStats RuntimeStats { get; }
+        public IRuntimeAttributes RuntimeAttributes { get; }
     }
 }

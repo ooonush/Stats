@@ -1,12 +1,8 @@
-using System.Collections.Generic;
-
 namespace Stats
 {
-    public interface IRuntimeStats<out TRuntimeStat> : IReadOnlyCollection<TRuntimeStat>
-        where TRuntimeStat : IRuntimeStat
+    public interface IRuntimeStats
     {
-        event StatValueChangedAction OnValueChanged;
-        TRuntimeStat Get(StatType statType);
-        bool Contains(StatType statType);
+        IRuntimeStat<TNumber> Get<TNumber>(StatId<TNumber> statId) where TNumber : IStatNumber<TNumber>;
+        bool Contains<TNumber>(StatId<TNumber> statIdAsset) where TNumber : IStatNumber<TNumber>;
     }
 }
