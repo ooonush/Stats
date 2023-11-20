@@ -1,6 +1,6 @@
 using System;
 
-namespace Stats.Int
+namespace Stats
 {
     [Serializable]
     internal sealed class AttributeIntIdValueGetType : AttributeIdValueGetType<TInt>

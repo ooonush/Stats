@@ -1,17 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Stats
 {
+    [Serializable]
     public struct ConstantModifier<TNumber> : IModifier<TNumber>, IEquatable<ConstantModifier<TNumber>> where TNumber : IStatNumber<TNumber>
     {
-        public ModifierType ModifierType { get; }
-        public TNumber Value { get; }
+        [SerializeField] private TNumber _value;
+        [SerializeField] private ModifierType _modifierType;
+        public TNumber Value => _value;
+        public ModifierType ModifierType => _modifierType;
 
         public ConstantModifier(TNumber value, ModifierType type = ModifierType.Positive)
         {
-            Value = value;
-            ModifierType = type;
+            _value = value;
+            _modifierType = type;
         }
 
         public bool Equals(ConstantModifier<TNumber> other)

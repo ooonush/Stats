@@ -1,17 +1,21 @@
 ﻿using System;
+using UnityEngine;
 
 namespace Stats
 {
     [Serializable]
     public struct PercentageModifier : IModifier<TFloat>, IEquatable<PercentageModifier>
     {
-        public ModifierType ModifierType { get; }
-        public TFloat Value { get; }
+        [SerializeField] private TFloat _value;
+        [SerializeField] private ModifierType _modifierType;
+
+        public TFloat Value => _value;
+        public ModifierType ModifierType => _modifierType;
 
         public PercentageModifier(TFloat value, ModifierType type = ModifierType.Positive)
         {
-            Value = value;
-            ModifierType = type;
+            _value = value;
+            _modifierType = type;
         }
 
         public bool Equals(PercentageModifier other)
