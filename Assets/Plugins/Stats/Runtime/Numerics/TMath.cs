@@ -17,7 +17,7 @@ namespace Stats
                 return min;
             }
 
-            return min.IsGreater(max) ? max : value;
+            return value.IsGreater(max) ? max : value;
         }
 
         public static TNumber Lerp<TNumber>(TNumber min, TNumber max, float value,
