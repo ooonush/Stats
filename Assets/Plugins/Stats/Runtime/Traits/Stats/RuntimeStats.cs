@@ -1,28 +1,25 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using Type = System.Type;
 
 namespace Stats
 {
-    public sealed class RuntimeStats : IRuntimeStats, IEnumerable<RuntimeStat>
+    public sealed class RuntimeStats : IRuntimeStats
     {
         private readonly Traits _traits;
-        private readonly Dictionary<string, RuntimeStat> _stats = new();
+        private readonly Dictionary<string, IRuntimeStatBase> _stats = new();
 
-        public int Count => _stats.Values.Count;
+        public int Count => _stats.Count;
 
         internal RuntimeStats(Traits traits)
         {
             _traits = traits;
         }
-        private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         internal void SyncWithTraitsClass(ITraitsClass traitsClass)
         {
-            ClearStats();
+            _stats.Clear();
             
             foreach ((string statId, object stat) in traitsClass.StatItems)
             {
@@ -40,55 +37,11 @@ namespace Stats
                             throw new Exception($"Stat with id \"{statId}\" already exists");
                         }
                         
-                        _stats[statId] = (RuntimeStat)genericRuntimeStat;
+                        _stats[statId] = (IRuntimeStatBase)genericRuntimeStat;
                     }
                 }
             }
-            
-            // foreach ((string attributeId, object attribute) in traitsClass.AttributeItems)
-            // {
-            //     foreach (Type attributeInterface in attribute.GetType().GetInterfaces())
-            //     {
-            //         if (attributeInterface.IsGenericType && attributeInterface.GetGenericTypeDefinition() == typeof(IAttribute<>))
-            //         {
-            //             object stat = attributeInterface.GetProperty("MaxValueStat")!.GetValue(attribute);
-            //             Type genericStatNumberType = attributeInterface.GenericTypeArguments[0];
-            //             Type runtimeStat = typeof(RuntimeStat<>).MakeGenericType(genericStatNumberType);
-            //
-            //             object genericRuntimeStat = Activator.CreateInstance(runtimeStat, _traits, stat);
-            //
-            //             if (_stats.ContainsKey(attributeId))
-            //             {
-            //                 throw new Exception($"Stat with id \"{attributeId}\" already exists");
-            //             }
-            //
-            //             _stats[attributeId] = (RuntimeStat)genericRuntimeStat;
-            //         }
-            //     }
-            // }
         }
-
-        private void ClearStats()
-        {
-            foreach (string statId in _stats.Keys.ToArray())
-            {
-                _stats.Remove(statId);
-            }
-        }
-
-        // private RuntimeStat Get(StatIdAsset statIdAsset)
-        // {
-        //     if (statIdAsset == null) throw new ArgumentNullException(nameof(statIdAsset));
-        //
-        //     try
-        //     {
-        //         return _stats[statIdAsset];
-        //     }
-        //     catch (Exception exception)
-        //     {
-        //         throw new ArgumentException("StatType not found in RuntimeStats", nameof(statIdAsset), exception);
-        //     }
-        // }
 
         IRuntimeStat<TNumber> IRuntimeStats.Get<TNumber>(StatId<TNumber> statId) => Get(statId);
 
@@ -102,15 +55,7 @@ namespace Stats
             return _stats.ContainsKey(statId);
         }
 
-        // public IEnumerator<RuntimeStat> GetEnumerator() => _stats.Values.GetEnumerator();
-        public IEnumerator<RuntimeStat> GetEnumerator()
-        {
-            return _stats.Values.GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        public IEnumerator<IRuntimeStat> GetEnumerator() => _stats.Values.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

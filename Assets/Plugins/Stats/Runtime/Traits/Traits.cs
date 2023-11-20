@@ -44,6 +44,11 @@ namespace Stats
             RuntimeStatusEffects.Update();
         }
 
+        private void OnDestroy()
+        {
+            RuntimeStatusEffects.Clear();
+        }
+
         public void Initialize(TraitsClassAsset traitsClass)
         {
             if (_initialized)
@@ -62,24 +67,19 @@ namespace Stats
             _initialized = true;
         }
 
-        private void OnDestroy()
-        {
-            RuntimeStatusEffects.Clear();
-        }
-
         private void SyncWithTraitsClass(ITraitsClass traitsClass)
         {
             RuntimeStats.SyncWithTraitsClass(traitsClass);
             RuntimeAttributes.SyncWithTraitsClass(traitsClass);
 
-            foreach (RuntimeStat runtimeStat in RuntimeStats)
+            foreach (IRuntimeStat runtimeStat in RuntimeStats)
             {
-                runtimeStat.InitializeStartValues();
+                ((IRuntimeStatBase)runtimeStat).InitializeStartValues();
             }
 
-            foreach (RuntimeAttribute runtimeAttribute in RuntimeAttributes)
+            foreach (IRuntimeAttribute runtimeAttribute in RuntimeAttributes)
             {
-                runtimeAttribute.InitializeStartValues();
+                ((IRuntimeAttributeBase)runtimeAttribute).InitializeStartValues();
             }
         }
     }

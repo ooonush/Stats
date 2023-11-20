@@ -1,17 +1,24 @@
+using System;
 using System.Collections.Generic;
 
 namespace Stats
 {
-    public interface IRuntimeStat<TNumber> where TNumber : IStatNumber<TNumber>
+    public interface IRuntimeStat
     {
-        StatId<TNumber> StatId { get; }
+        string StatId { get; }
+        event Action OnChanged;
+    }
+
+    public interface IRuntimeStat<TNumber> : IRuntimeStat where TNumber : IStatNumber<TNumber>
+    {
+        new StatId<TNumber> StatId { get; }
         TNumber Base { get; set; }
         TNumber Value { get; }
         TNumber ModifiersValue { get; }
-        IReadOnlyList<ConstantModifier<TNumber>> PercentageModifiers { get; }
+        IReadOnlyList<PercentageModifier> PercentageModifiers { get; }
         IReadOnlyList<ConstantModifier<TNumber>> ConstantModifiers { get; }
 
-        event StatValueChangedAction<TNumber> OnValueChanged;
+        new event StatValueChangedAction<TNumber> OnValueChanged;
 
         void AddModifier(ConstantModifier<TNumber> modifier);
         void AddModifier(PercentageModifier modifier);

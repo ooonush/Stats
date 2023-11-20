@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Stats
 {
@@ -8,9 +8,9 @@ namespace Stats
     public sealed class RuntimeAttributes : IRuntimeAttributes
     {
         private readonly Traits _traits;
-        private readonly Dictionary<string, RuntimeAttribute> _attributes = new();
+        private readonly Dictionary<string, IRuntimeAttributeBase> _attributes = new();
 
-        internal event Action OnValueChanged;
+        public int Count => _attributes.Count;
 
         internal RuntimeAttributes(Traits traits)
         {
@@ -19,8 +19,8 @@ namespace Stats
 
         public void SyncWithTraitsClass(ITraitsClass traitsClass)
         {
-            ClearAttributes();
-
+            _attributes.Clear();
+            
             foreach ((string attributeId, object attribute) in traitsClass.AttributeItems)
             {
                 foreach (Type attributeInterface in attribute.GetType().GetInterfaces())
@@ -29,44 +29,18 @@ namespace Stats
                     {
                         Type genericAttributeNumberType = attributeInterface.GenericTypeArguments[0];
                         Type runtimeAttributeType = typeof(RuntimeAttribute<>).MakeGenericType(genericAttributeNumberType);
-
+                        
                         object genericRuntimeAttribute = Activator.CreateInstance(runtimeAttributeType, _traits, attribute);
-
+                        
                         if (_attributes.ContainsKey(attributeId))
                         {
                             throw new Exception($"Stat with id \"{attributeId}\" already exists");
                         }
-
-                        AddRuntimeAttribute(attributeId, (RuntimeAttribute)genericRuntimeAttribute);
+                        
+                        _attributes[attributeId] = (IRuntimeAttributeBase)genericRuntimeAttribute;
                     }
                 }
             }
-        }
-
-        private void AddRuntimeAttribute(string attributeId, RuntimeAttribute runtimeAttribute)
-        {
-            _attributes[attributeId] = runtimeAttribute;
-            runtimeAttribute.OnValueChanged += OnValueChanged;
-        }
-
-        private void RemoveRuntimeAttribute(string attributeId)
-        {
-            RuntimeAttribute runtimeAttribute = _attributes[attributeId];
-            runtimeAttribute.OnValueChanged -= OnValueChanged;
-            _attributes.Remove(attributeId);
-        }
-
-        private void ClearAttributes()
-        {
-            foreach (string attributeId in _attributes.Keys.ToArray())
-            {
-                RemoveRuntimeAttribute(attributeId);
-            }
-        }
-
-        IRuntimeAttribute<TNumber> IRuntimeAttributes.Get<TNumber>(AttributeId<TNumber> attributeId)
-        {
-            return Get(attributeId);
         }
 
         public RuntimeAttribute<TNumber> Get<TNumber>(AttributeId<TNumber> attributeId) where TNumber : IStatNumber<TNumber>
@@ -92,6 +66,10 @@ namespace Stats
             return _attributes.ContainsKey(attributeType);
         }
 
-        public IEnumerator<RuntimeAttribute> GetEnumerator() => _attributes.Values.GetEnumerator();
+        IRuntimeAttribute<TNumber> IRuntimeAttributes.Get<TNumber>(AttributeId<TNumber> attributeId) => Get(attributeId);
+
+        public IEnumerator<IRuntimeAttribute> GetEnumerator() => _attributes.Values.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

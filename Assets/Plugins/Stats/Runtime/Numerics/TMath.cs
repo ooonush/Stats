@@ -20,7 +20,8 @@ namespace Stats
             return min.IsGreater(max) ? max : value;
         }
 
-        public static TNumber Lerp<TNumber>(float value, TNumber min, TNumber max, RoundingMode roundType = RoundingMode.Floor)
+        public static TNumber Lerp<TNumber>(TNumber min, TNumber max, float value,
+            RoundingMode roundType = RoundingMode.Floor)
             where TNumber : IStatNumber<TNumber>
         {
             TNumber difference = max.Subtract(min);

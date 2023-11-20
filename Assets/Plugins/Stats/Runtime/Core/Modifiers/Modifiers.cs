@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Stats
 {
-    public sealed class Modifiers<TNumber> where TNumber : IStatNumber<TNumber>
+    public sealed class Modifiers<TNumber> : IModifiers<TNumber> where TNumber : IStatNumber<TNumber>
     {
         private readonly PercentageModifierList _percentages = new();
         private readonly ConstantModifierList<TNumber> _constants = new();
@@ -42,7 +42,7 @@ namespace Stats
 
         public bool Remove(PercentageModifier modifier) => _percentages.Remove(modifier);
 
-        private void Clear()
+        public void Clear()
         {
             _percentages.Clear();
             _constants.Clear();

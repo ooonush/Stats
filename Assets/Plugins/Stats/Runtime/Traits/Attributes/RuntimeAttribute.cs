@@ -2,28 +2,15 @@
 
 namespace Stats
 {
-    public abstract class RuntimeAttribute
+    public sealed class RuntimeAttribute<TNumber> : IRuntimeAttributeBase, IRuntimeAttribute<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        internal event Action OnValueChanged;
-        internal abstract void InitializeStartValues();
+        public AttributeId<TNumber> AttributeId { get; }
 
-        protected void InvokeOnValueChanged() => OnValueChanged?.Invoke();
-    }
+        IRuntimeStat<TNumber> IRuntimeAttribute<TNumber>.MaxRuntimeStat => MaxRuntimeStat;
 
-    public sealed class RuntimeAttribute<TNumber> : RuntimeAttribute, IRuntimeAttribute<TNumber> where TNumber : IStatNumber<TNumber>
-    {
-        private readonly Traits _traits;
-        public AttributeId<TNumber> AttributeId => _attribute.AttributeId;
-
-        public RuntimeStat<TNumber> MaxRuntimeStat => _attribute.MaxValueStat != null
-            ? _traits.RuntimeStats.Get(_attribute.MaxValueStat.StatId)
-            : default;
+        public RuntimeStat<TNumber> MaxRuntimeStat { get; }
 
         public TNumber MinValue { get; }
-
-        private bool _initialized;
-        private TNumber _value;
-        private readonly IAttribute<TNumber> _attribute;
 
         public TNumber Value
         {
@@ -31,9 +18,9 @@ namespace Stats
             {
                 if (!_initialized)
                 {
-                    InitializeStartValues();
+                    ((IRuntimeAttributeBase)this).InitializeStartValues();
                 }
-
+                
                 return _value;
             }
             set
@@ -41,32 +28,51 @@ namespace Stats
                 TNumber oldValue = Value;
                 TNumber newValue = TMath.Clamp(value, MinValue, MaxRuntimeStat.Value);
                 if (!_value.Equals(newValue)) return;
-
+                
                 _value = newValue;
-                OnValueChanged?.Invoke(AttributeId, newValue.Subtract(oldValue));
-                InvokeOnValueChanged();
+                OnChanged?.Invoke();
+                OnValueChanged?.Invoke(AttributeId, oldValue, newValue);
+                foreach (IRuntimeStat runtimeStat in _traits.RuntimeStats)
+                {
+                    ((IRuntimeStatBase)runtimeStat).RecalculateValue();
+                }
             }
         }
 
-        public new event AttributeValueChangedAction<TNumber> OnValueChanged;
+        private readonly float _startPercent;
+
+        private bool _initialized;
+
+        private TNumber _value;
+
+        private Traits _traits;
+
+        string IRuntimeAttribute.AttributeId => AttributeId;
+
+        public event AttributeValueChangedAction<TNumber> OnValueChanged;
+        private event Action OnChanged;
+        event Action IRuntimeAttribute.OnValueChanged
+        {
+            add => OnChanged += value;
+            remove => OnChanged -= value;
+        }
+
+        void IRuntimeAttributeBase.InitializeStartValues()
+        {
+            _initialized = true;
+            _value = TMath.Lerp(MinValue, MaxRuntimeStat.Value, _startPercent);
+        }
 
         public RuntimeAttribute(Traits traits, IAttribute<TNumber> attribute)
         {
-            _traits = traits;
-            _attribute = attribute;
-
             MinValue = attribute.MinValue;
-
-            if (attribute.MaxValueStat != null)
-            {
-                traits.RuntimeStats.Get(attribute.MaxValueStat.StatId).OnValueChanged += (_, _) => OnMaxValueChanged();
-            }
-        }
-
-        internal override void InitializeStartValues()
-        {
-            _initialized = true;
-            _value = TMath.Lerp(_attribute.StartPercent, MinValue, MaxRuntimeStat.Value);
+            AttributeId = attribute.AttributeId;
+            MaxRuntimeStat = traits.RuntimeStats.Get(attribute.MaxValueStat.StatId);
+            
+            _traits = traits;
+            _startPercent = attribute.StartPercent;
+            
+            MaxRuntimeStat.OnValueChanged += (_, _, _) => OnMaxValueChanged();
         }
 
         private void OnMaxValueChanged()

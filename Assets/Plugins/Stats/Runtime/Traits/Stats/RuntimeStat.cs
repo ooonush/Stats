@@ -1,25 +1,19 @@
+﻿using System;
 using System.Collections.Generic;
 
 namespace Stats
 {
-    public abstract class RuntimeStat
+    public sealed class RuntimeStat<TNumber> : IRuntimeStatBase, IRuntimeStat<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        protected internal abstract void RecalculateValue();
-        internal abstract void InitializeStartValues();
-    }
-
-    public sealed class RuntimeStat<TNumber> : RuntimeStat, IRuntimeStat<TNumber> where TNumber : IStatNumber<TNumber>
-    {
-        private readonly Modifiers<TNumber> _modifiers;
+        private readonly Modifiers<TNumber> _modifiers = new Modifiers<TNumber>();
         private readonly Traits _traits;
         private readonly StatFormula<TNumber> _formula;
 
         public IReadOnlyList<ConstantModifier<TNumber>> ConstantModifiers => _modifiers.Constants;
-        public IReadOnlyList<ConstantModifier<TNumber>> PercentageModifiers => _modifiers.Constants;
+        public IReadOnlyList<PercentageModifier> PercentageModifiers => _modifiers.Percentages;
 
         public StatId<TNumber> StatId { get; }
-
-        private TNumber _base;
+        string IRuntimeStat.StatId => StatId;
 
         public TNumber Base
         {
@@ -31,16 +25,13 @@ namespace Stats
             }
         }
 
-        private bool _initialized;
-        private TNumber _value;
-
         public TNumber Value
         {
             get
             {
                 if (!_initialized)
                 {
-                    InitializeStartValues();
+                    ((IRuntimeStatBase)this).InitializeStartValues();
                 }
 
                 return _value;
@@ -57,27 +48,34 @@ namespace Stats
             }
         }
 
+        private TNumber _base;
+        private TNumber _value;
+        private bool _initialized;
+
+        private event Action OnChanged;
+        event Action IRuntimeStat.OnChanged
+        {
+            add => OnChanged += value;
+            remove => OnChanged -= value;
+        }
+
         public event StatValueChangedAction<TNumber> OnValueChanged;
 
         public RuntimeStat(Traits traits, IStat<TNumber> stat)
         {
             _traits = traits;
             StatId = stat.StatId;
-            _modifiers = new Modifiers<TNumber>();
-            
             _base = stat.Base;
             _formula = stat.Formula;
-            
-            _traits.RuntimeAttributes.OnValueChanged += RecalculateValue;
         }
 
-        internal override void InitializeStartValues()
+        void IRuntimeStatBase.InitializeStartValues()
         {
             _initialized = true;
             _value = CalculateValue();
         }
 
-        protected internal override void RecalculateValue()
+        void IRuntimeStatBase.RecalculateValue()
         {
             TNumber prevValue = Value;
             TNumber nextValue = CalculateValue();
@@ -86,47 +84,47 @@ namespace Stats
 
             Value = nextValue;
 
-            foreach (RuntimeStat runtimeStat in _traits.RuntimeStats)
+            foreach (IRuntimeStat runtimeStat in _traits.RuntimeStats)
             {
                 if (runtimeStat != this)
                 {
-                    runtimeStat.RecalculateValue();
+                    ((IRuntimeStatBase)runtimeStat).RecalculateValue();
                 }
             }
 
-            OnValueChanged?.Invoke(StatId, Value.Subtract(prevValue));
+            OnChanged?.Invoke();
+            OnValueChanged?.Invoke(StatId, prevValue, Value);
         }
 
         private TNumber CalculateValue()
         {
             TNumber value = _formula ? _formula.Calculate(this, _traits) : _base;
-            TNumber nextValue = _modifiers.Calculate(value);
-            return nextValue;
+            return _modifiers.Calculate(value);
         }
 
         private void SetBase(TNumber value)
         {
             _base = value;
-            RecalculateValue();
+            ((IRuntimeStatBase)this).RecalculateValue();
         }
 
         public void AddModifier(ConstantModifier<TNumber> modifier)
         {
             _modifiers.Add(modifier);
-            RecalculateValue();
+            ((IRuntimeStatBase)this).RecalculateValue();
         }
 
         public void AddModifier(PercentageModifier modifier)
         {
             _modifiers.Add(modifier);
-            RecalculateValue();
+            ((IRuntimeStatBase)this).RecalculateValue();
         }
 
         public bool RemoveModifier(ConstantModifier<TNumber> modifier)
         {
             bool success = _modifiers.Remove(modifier);
 
-            if (success) RecalculateValue();
+            if (success) ((IRuntimeStatBase)this).RecalculateValue();
             return success;
         }
 
@@ -134,13 +132,10 @@ namespace Stats
         {
             bool success = _modifiers.Remove(modifier);
 
-            if (success) RecalculateValue();
+            if (success) ((IRuntimeStatBase)this).RecalculateValue();
             return success;
         }
 
-        public override string ToString()
-        {
-            return $"{StatId}: {Value}";
-        }
+        public override string ToString() => $"{StatId}: {Value}";
     }
 }
