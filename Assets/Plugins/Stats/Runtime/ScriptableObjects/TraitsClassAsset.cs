@@ -170,16 +170,34 @@ namespace Stats
 
         private void AddAttribute(object attribute)
         {
-            var attributeId = attribute.GetType().GetProperty("AttributeId", Flags)!.GetValue(attribute).ToString();
-            _attributeItems.Add(attributeId, attribute);
+            if (attribute == null) return;
+            
+            object attributeId = attribute.GetType().GetProperty("AttributeId", Flags)!.GetValue(attribute);
+            
+            if (attributeId == null) return;
+            
+            var attributeIdString = attributeId.ToString();
+            
+            if (string.IsNullOrEmpty(attributeIdString)) return;
+            
+            _attributeItems.Add(attributeIdString, attribute);
             
             AddStat(attribute.GetType().GetProperty("MaxValueStat", Flags)!.GetValue(attribute));
         }
 
         private void AddStat(object stat)
         {
-            var statId = stat.GetType().GetProperty("StatId", Flags)!.GetValue(stat).ToString();
-            _statItems.Add(statId, stat);
+            if (stat == null) return;
+            
+            object statId = stat.GetType().GetProperty("StatId", Flags)!.GetValue(stat);
+            
+            if (statId == null) return;
+            
+            var statIdString = statId.ToString();
+            
+            if (string.IsNullOrEmpty(statIdString)) return;
+            
+            _statItems.Add(statIdString, stat);
         }
 
         private void AddStatItem(object statItem)
