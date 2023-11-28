@@ -1,8 +1,13 @@
 ﻿namespace Stats
 {
-    public interface IStat<TNumber> where TNumber : IStatNumber<TNumber>
+    public interface IStat
     {
-        StatId<TNumber> StatId { get; }
+        StatId StatId { get; }
+    }
+
+    public interface IStat<TNumber> : IStat where TNumber : IStatNumber<TNumber>
+    {
+        new StatId<TNumber> StatId { get; }
         TNumber Base { get; }
         StatFormula<TNumber> Formula { get; }
     }

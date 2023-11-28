@@ -62,25 +62,9 @@ namespace Stats
                 throw new ArgumentNullException(nameof(traitsClass), "TraitsClass cannot be null.");
             }
 
-            SyncWithTraitsClass(traitsClass);
+            this.SyncWithTraitsClass(traitsClass);
             _traitsClass = traitsClass;
             _initialized = true;
-        }
-
-        private void SyncWithTraitsClass(ITraitsClass traitsClass)
-        {
-            RuntimeStats.SyncWithTraitsClass(traitsClass);
-            RuntimeAttributes.SyncWithTraitsClass(traitsClass);
-
-            foreach (IRuntimeStat runtimeStat in RuntimeStats)
-            {
-                ((IRuntimeStatBase)runtimeStat).InitializeStartValues();
-            }
-
-            foreach (IRuntimeAttribute runtimeAttribute in RuntimeAttributes)
-            {
-                ((IRuntimeAttributeBase)runtimeAttribute).InitializeStartValues();
-            }
         }
     }
 }

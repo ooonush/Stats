@@ -41,6 +41,8 @@ namespace Stats
             return (TFloat)TMath.Round(Value * percent, roundingMode);
         }
 
+        public TDouble ToDouble() => Value;
+
         #region Object Overrides
 
         public override bool Equals(object? obj) => obj is TFloat other && Equals(other);

@@ -19,13 +19,13 @@ namespace Stats
         private Type _defaultEditorPropertyType;
 #endif
 
-        public GetType<TValue> Property
+        public IGetType<TValue> Property
         {
-            get => _property as GetType<TValue>;
+            get => _property as IGetType<TValue>;
             set => _property = value;
         }
 
-        public Getter(GetType<TValue> defaultValue)
+        public Getter(IGetType<TValue> defaultValue)
         {
             _property = defaultValue;
         }
@@ -38,7 +38,7 @@ namespace Stats
 
         public override string ToString() => Property?.ToString() ?? "(none)";
 
-        protected void SetDefaultEditorPropertyType<T>() where T : GetType<TValue>
+        protected void SetDefaultEditorPropertyType<T>() where T : IGetType<TValue>
         {
 #if UNITY_EDITOR
             _defaultEditorPropertyType = typeof(T);
@@ -53,7 +53,7 @@ namespace Stats
             TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom(_defaultEditorPropertyType);
             foreach (Type type in types.Where(IsFinalNonGenericAssignableType))
             {
-                Property = (GetType<TValue>)Activator.CreateInstance(type);
+                Property = (IGetType<TValue>)Activator.CreateInstance(type);
                 return;
             }
         }

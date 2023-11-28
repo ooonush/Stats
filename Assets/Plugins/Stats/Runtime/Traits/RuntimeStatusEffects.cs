@@ -11,7 +11,7 @@ namespace Stats
 
         public void Add(StatusEffect statusEffect)
         {
-            if (_effects.TryGetValue(statusEffect.Id, out var activeEffects))
+            if (_effects.TryGetValue(statusEffect.Id, out LinkedList<StatusEffect> activeEffects))
             {
                 while (activeEffects.Count >= statusEffect.MaxStack)
                 {
@@ -34,7 +34,7 @@ namespace Stats
         {
             var effectIdsToRemove = new List<StatusEffect>();
 
-            foreach (var activeEffects in _effects.Values)
+            foreach (LinkedList<StatusEffect> activeEffects in _effects.Values)
             {
                 foreach (StatusEffect activeEffect in activeEffects)
                 {
@@ -53,8 +53,8 @@ namespace Stats
 
         public void Remove(StatusEffect statusEffect)
         {
-            var activeEffects = _effects[statusEffect.Id];
-            var activeEffectNode = activeEffects.Find(statusEffect);
+            LinkedList<StatusEffect> activeEffects = _effects[statusEffect.Id];
+            LinkedListNode<StatusEffect> activeEffectNode = activeEffects.Find(statusEffect);
             if (activeEffectNode != null)
             {
                 activeEffectNode.Value.OnEnd(_traits);
@@ -70,7 +70,7 @@ namespace Stats
         {
             foreach (string statusEffectId in _effects.Keys)
             {
-                var activeEffects = _effects[statusEffectId];
+                LinkedList<StatusEffect> activeEffects = _effects[statusEffectId];
                 foreach (StatusEffect activeEffect in activeEffects)
                 {
                     activeEffect.OnEnd(_traits);

@@ -32,5 +32,10 @@ namespace Stats
         {
             return HashCode.Combine((int)ModifierType, Value);
         }
+
+        internal ConstantModifier<TDouble> ToDoubleModifier()
+        {
+            return new ConstantModifier<TDouble>(_value.ToDouble(), _modifierType);
+        }
     }
 }

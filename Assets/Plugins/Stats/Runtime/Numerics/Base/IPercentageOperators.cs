@@ -1,4 +1,5 @@
-﻿namespace Stats
+﻿#nullable enable
+namespace Stats
 {
     public interface IPercentageOperators<TSelf, TOther, TResult> where TSelf : IPercentageOperators<TSelf, TOther, TResult>?
     {

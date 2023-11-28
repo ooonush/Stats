@@ -4,6 +4,7 @@ using UnityEngine.UIElements;
 
 namespace Stats.Editor
 {
+    [CustomPropertyDrawer(typeof(AttributeItem), true)]
     [CustomPropertyDrawer(typeof(AttributeItem<>), true)]
     public class AttributeItemDrawer : PropertyDrawer
     {

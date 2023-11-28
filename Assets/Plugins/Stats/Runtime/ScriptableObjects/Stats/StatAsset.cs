@@ -9,5 +9,6 @@ namespace Stats
         public StatId<TNumber> StatId => _stat.StatId;
         public TNumber Base => _stat.Base;
         public StatFormula<TNumber> Formula => _stat.Formula;
+        StatId IStat.StatId => StatId;
     }
 }

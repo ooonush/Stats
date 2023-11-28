@@ -5,7 +5,7 @@ using UnityEngine.UIElements;
 
 namespace Stats.Editor
 {
-    [CustomPropertyDrawer(typeof(GetType<>), true)]
+    [CustomPropertyDrawer(typeof(IGetType<>), true)]
     public class PropertyTypeGetDrawer : PropertyDrawer
     {
         public override VisualElement CreatePropertyGUI(SerializedProperty property)

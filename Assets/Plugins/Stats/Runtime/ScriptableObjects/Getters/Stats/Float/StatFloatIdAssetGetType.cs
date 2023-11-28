@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Stats.Float
+namespace Stats
 {
     [Serializable]
     internal class StatFloatIdAssetGetType : StatIdAssetGetType<TFloat>

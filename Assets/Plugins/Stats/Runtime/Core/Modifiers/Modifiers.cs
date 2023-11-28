@@ -1,14 +1,10 @@
-using System.Collections.Generic;
-
 namespace Stats
 {
     public sealed class Modifiers<TNumber> : IModifiers<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        private readonly PercentageModifierList _percentages = new();
-        private readonly ConstantModifierList<TNumber> _constants = new();
+        public PercentageModifierList Percentages { get; } = new();
 
-        public IReadOnlyList<PercentageModifier> Percentages => _percentages;
-        public IReadOnlyList<ConstantModifier<TNumber>> Constants => _constants;
+        public ConstantModifierList<TNumber> Constants { get; } = new();
 
         public void CopyDataFrom(Modifiers<TNumber> modifiers)
         {
@@ -19,7 +15,7 @@ namespace Stats
                 Add(modifier);
             }
 
-            foreach (var modifier in modifiers.Constants)
+            foreach (ConstantModifier<TNumber> modifier in modifiers.Constants)
             {
                 Add(modifier);
             }
@@ -27,25 +23,25 @@ namespace Stats
 
         public TNumber Calculate(TNumber value)
         {
-            value = value.Add(value.CalculatePercent(_percentages.PositiveValue - _percentages.NegativeValue));
+            value = value.Add(value.CalculatePercent(Percentages.PositiveValue - Percentages.NegativeValue));
             
-            value = value.Add(_constants.PositiveValue);
-            value = value.Add(_constants.NegativeValue);
+            value = value.Add(Constants.PositiveValue);
+            value = value.Add(Constants.NegativeValue);
             return value;
         }
 
-        public void Add(PercentageModifier modifier) => _percentages.Add(modifier);
+        public void Add(PercentageModifier modifier) => Percentages.Add(modifier);
 
-        public void Add(ConstantModifier<TNumber> modifier) => _constants.Add(modifier);
+        public void Add(ConstantModifier<TNumber> modifier) => Constants.Add(modifier);
 
-        public bool Remove(ConstantModifier<TNumber> modifier) => _constants.Remove(modifier);
+        public bool Remove(ConstantModifier<TNumber> modifier) => Constants.Remove(modifier);
 
-        public bool Remove(PercentageModifier modifier) => _percentages.Remove(modifier);
+        public bool Remove(PercentageModifier modifier) => Percentages.Remove(modifier);
 
         public void Clear()
         {
-            _percentages.Clear();
-            _constants.Clear();
+            Percentages.Clear();
+            Constants.Clear();
         }
     }
 }

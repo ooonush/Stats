@@ -3,7 +3,8 @@
 namespace Stats
 {
     [Serializable]
-    public abstract class TraitsClassGetType : GetType<ITraitsClass>
+    public abstract class TraitsClassGetType : IGetType<ITraitsClass>
     {
+        public abstract ITraitsClass Get();
     }
 }

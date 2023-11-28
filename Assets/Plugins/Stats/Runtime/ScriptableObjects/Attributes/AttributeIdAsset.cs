@@ -2,9 +2,14 @@ using UnityEngine;
 
 namespace Stats
 {
-    public abstract class AttributeIdAsset<TNumber> : ScriptableObject where TNumber : IStatNumber<TNumber>
+    public abstract class AttributeIdAsset : ScriptableObject
     {
-        [SerializeField] private AttributeId<TNumber> _attributeAttributeId;
-        public AttributeId<TNumber> AttributeId => _attributeAttributeId;
+        [SerializeField] private AttributeId _attributeId;
+        public AttributeId AttributeId => _attributeId;
+    }
+
+    public abstract class AttributeIdAsset<TNumber> : AttributeIdAsset where TNumber : IStatNumber<TNumber>
+    {
+        public new AttributeId<TNumber> AttributeId => base.AttributeId;
     }
 }

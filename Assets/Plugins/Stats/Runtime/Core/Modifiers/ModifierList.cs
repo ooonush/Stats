@@ -36,23 +36,22 @@ namespace Stats
         {
             for (int i = _list.Count - 1; i >= 0; --i)
             {
-                if (_list[i].Value.Equals(modifier.Value) && _list[i].ModifierType == modifier.ModifierType)
+                if (!_list[i].Value.Equals(modifier.Value) || _list[i].ModifierType != modifier.ModifierType) continue;
+                
+                switch (modifier.ModifierType)
                 {
-                    switch (modifier.ModifierType)
-                    {
-                        case ModifierType.Positive:
-                            PositiveValue = PositiveValue.Subtract(modifier.Value);
-                            break;
-                        case ModifierType.Negative:
-                            NegativeValue = NegativeValue.Subtract(modifier.Value);
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    
-                    _list.RemoveAt(i);
-                    return true;
+                    case ModifierType.Positive:
+                        PositiveValue = PositiveValue.Subtract(modifier.Value);
+                        break;
+                    case ModifierType.Negative:
+                        NegativeValue = NegativeValue.Subtract(modifier.Value);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
+                
+                _list.RemoveAt(i);
+                return true;
             }
             
             return false;

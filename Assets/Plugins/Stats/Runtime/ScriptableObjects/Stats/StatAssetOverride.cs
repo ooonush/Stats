@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Stats
 {
     [Serializable]
-    internal class StatAssetOverride<TNumber> : IStat<TNumber> where TNumber : IStatNumber<TNumber>
+    public class StatAssetOverride<TNumber> : IStat<TNumber> where TNumber : IStatNumber<TNumber>
     {
         [SerializeField] private StatAsset<TNumber> _statAsset;
 
@@ -33,5 +33,7 @@ namespace Stats
                 return _changeFormula ? _formula : _statAsset.Formula;
             }
         }
+
+        StatId IStat.StatId => StatId;
     }
 }

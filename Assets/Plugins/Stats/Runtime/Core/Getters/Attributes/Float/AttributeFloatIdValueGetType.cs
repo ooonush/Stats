@@ -3,7 +3,7 @@
 namespace Stats
 {
     [Serializable]
-    internal class AttributeFloatIdValueGetType : AttributeValueGetType<TFloat>
+    internal class AttributeFloatIdValueGetType : AttributeIdValueGetType<TFloat>
     {
     }
 }

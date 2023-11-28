@@ -16,12 +16,13 @@ namespace Stats.Editor
         {
             const string propertyName = "_property";
             SerializedProperty propertyItem = property.FindPropertyRelative(propertyName);
-            Type targetType = fieldInfo.FieldType.GetProperty("Property", Flags)!.PropertyType;
+            
+            Type targetType = property.GetValue().GetType().GetProperty("Property", Flags)!.PropertyType;
             
             var dropdown = new PropertyTypeSelectionDropdown(propertyItem, targetType, preferredLabel);
             dropdown.DropdownField.AddToClassList("unity-base-field__inspector-field");
             dropdown.DropdownField.AddToClassList("unity-base-field__aligned");
-
+            
             return dropdown;
         }
     }

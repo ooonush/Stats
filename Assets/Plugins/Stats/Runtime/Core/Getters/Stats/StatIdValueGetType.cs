@@ -6,6 +6,14 @@ namespace Stats
 {
     [Serializable]
     [DropdownName("String")]
+    internal class StatIdValueGetType : StatIdGetType
+    {
+        [SerializeField] private StatId _statId;
+        public override StatId Get() => _statId;
+    }
+
+    [Serializable]
+    [DropdownName("String")]
     internal abstract class StatIdValueGetType<TNumber> : StatIdGetType<TNumber> where TNumber : IStatNumber<TNumber>
     {
         [SerializeField] private StatId<TNumber> _statId;

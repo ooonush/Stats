@@ -1,7 +1,7 @@
+#nullable enable
 namespace Stats
 {
-    public interface IComparisonOperators<TSelf, TOther, TResult>
-        where TSelf : IComparisonOperators<TSelf, TOther, TResult>?
+    public interface IComparisonOperators<TSelf, TOther, TResult> where TSelf : IComparisonOperators<TSelf, TOther, TResult>?
     {
         TResult IsLess(TOther other);
         TResult IsGreater(TOther other);

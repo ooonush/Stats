@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-
-namespace Stats
+﻿namespace Stats
 {
     public interface IModifiers<TNumber> where TNumber : IStatNumber<TNumber>
     {
-        IReadOnlyList<PercentageModifier> Percentages { get; }
-        IReadOnlyList<ConstantModifier<TNumber>> Constants { get; }
+        PercentageModifierList Percentages { get; }
+        ConstantModifierList<TNumber> Constants { get; }
         void Add(PercentageModifier modifier);
         void Add(ConstantModifier<TNumber> modifier);
         bool Remove(ConstantModifier<TNumber> modifier);

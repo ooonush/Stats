@@ -1,10 +1,7 @@
-﻿using System;
-
-namespace Stats
+﻿namespace Stats
 {
-    [Serializable]
-    public abstract class GetType<T>
+    public interface IGetType<out T>
     {
-        public abstract T Get();
+        public T Get();
     }
 }
