@@ -167,7 +167,7 @@ namespace Stats
                     }
                     return true;
                 }
-                if (StatItemEnumerableType == genericTypeDefinition)
+                if (StatItemEnumerableType == fieldInterface)
                 {
                     foreach (object statItem in (IEnumerable)fieldValue)
                     { 
@@ -175,7 +175,7 @@ namespace Stats
                     }
                     return true;
                 }
-                if (AttributeItemEnumerableType == genericTypeDefinition)
+                if (AttributeItemEnumerableType == fieldInterface)
                 {
                     foreach (object attributeItem in (IEnumerable)fieldValue)
                     {
@@ -198,7 +198,7 @@ namespace Stats
                     {
                         AddAttributeItem(attributeItem);
                     }
-
+                    
                     return true;
                 }
             }
