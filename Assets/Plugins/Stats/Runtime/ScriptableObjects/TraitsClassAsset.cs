@@ -243,7 +243,7 @@ namespace Stats
             }
             else
             {
-                Type genericAttributeItemType = AttributeItemType.MakeGenericType(attributeItem.GetType().GenericTypeArguments[0]);
+                Type genericAttributeItemType = GenericAttributeItemType.MakeGenericType(attributeItem.GetType().GenericTypeArguments[0]);
                 PropertyInfo attributePropertyInfo = genericAttributeItemType.GetProperty("Attribute");
                 AddAttribute((IAttribute)attributePropertyInfo!.GetValue(attributeItem));
             }
