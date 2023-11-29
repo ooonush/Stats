@@ -10,7 +10,6 @@ namespace Stats
 
     public abstract class StatIdAsset<TNumber> : StatIdAsset where TNumber : IStatNumber<TNumber>
     {
-        [SerializeField] private StatId<TNumber> _statId;
-        public new StatId<TNumber> StatId => _statId;
+        public new StatId<TNumber> StatId => (StatId<TNumber>)base.StatId;
     }
 }

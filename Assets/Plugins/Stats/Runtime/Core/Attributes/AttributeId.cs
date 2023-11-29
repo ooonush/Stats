@@ -84,7 +84,7 @@ namespace Stats
             return new AttributeId<TNumber>(id);
         }
 
-        public static implicit operator AttributeId<TNumber>(AttributeId attributeId)
+        public static explicit operator AttributeId<TNumber>(AttributeId attributeId)
         {
             return new AttributeId<TNumber>(attributeId);
         }

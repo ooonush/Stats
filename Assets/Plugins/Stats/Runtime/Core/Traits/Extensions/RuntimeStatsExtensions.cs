@@ -26,10 +26,5 @@
         {
             return runtimeStats.Get(statIdItem.StatId);
         }
-
-        public static IRuntimeStat<TNumber> Get<TNumber>(this IRuntimeStats runtimeStats, StatId<TNumber> statId) where TNumber : IStatNumber<TNumber>
-        {
-            return (IRuntimeStat<TNumber>)runtimeStats.Get((StatId)statId);
-        }
     }
 }

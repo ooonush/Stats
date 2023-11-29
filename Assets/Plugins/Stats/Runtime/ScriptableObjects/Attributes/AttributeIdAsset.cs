@@ -10,6 +10,6 @@ namespace Stats
 
     public abstract class AttributeIdAsset<TNumber> : AttributeIdAsset where TNumber : IStatNumber<TNumber>
     {
-        public new AttributeId<TNumber> AttributeId => base.AttributeId;
+        public new AttributeId<TNumber> AttributeId => (AttributeId<TNumber>)base.AttributeId;
     }
 }

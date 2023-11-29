@@ -19,7 +19,7 @@
 
         public static RuntimeAttribute<TNumber> Get<TNumber>(this RuntimeAttributes attributes, AttributeIdItem attributeIdItem) where TNumber : IStatNumber<TNumber>
         {
-            return attributes.Get<TNumber>(attributeIdItem.AttributeId);
+            return attributes.Get((AttributeId<TNumber>)attributeIdItem.AttributeId);
         }
 
         public static RuntimeAttribute<TNumber> Get<TNumber>(this RuntimeAttributes attributes, AttributeIdItem<TNumber> attributeIdItem) where TNumber : IStatNumber<TNumber>
