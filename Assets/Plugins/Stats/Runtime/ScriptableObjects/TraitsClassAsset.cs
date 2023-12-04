@@ -230,7 +230,7 @@ namespace Stats
             else
             {
                 Type genericStatItemType = GenericStatItemType.MakeGenericType(statItem.GetType().GenericTypeArguments[0]);
-                PropertyInfo statPropertyInfo = genericStatItemType.GetProperty("Stat");
+                PropertyInfo statPropertyInfo = genericStatItemType.GetProperty("Value");
                 AddStat((IStat)statPropertyInfo!.GetValue(statItem));
             }
         }
@@ -244,7 +244,7 @@ namespace Stats
             else
             {
                 Type genericAttributeItemType = GenericAttributeItemType.MakeGenericType(attributeItem.GetType().GenericTypeArguments[0]);
-                PropertyInfo attributePropertyInfo = genericAttributeItemType.GetProperty("Attribute");
+                PropertyInfo attributePropertyInfo = genericAttributeItemType.GetProperty("Value");
                 AddAttribute((IAttribute)attributePropertyInfo!.GetValue(attributeItem));
             }
         }
