@@ -10,6 +10,15 @@ namespace Stats
     {
         [SerializeField] private StatId _statId;
         public override StatId Get() => _statId;
+
+        public StatIdValueGetType()
+        {
+        }
+        
+        public StatIdValueGetType(StatId statId)
+        {
+            _statId = statId;
+        }
     }
 
     [Serializable]

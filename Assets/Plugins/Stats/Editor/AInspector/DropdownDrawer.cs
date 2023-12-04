@@ -18,7 +18,7 @@ namespace AInspector
                 return new PropertyField(property);
             }
             
-            var dropdown = new PropertyTypeSelectionDropdown(property, GetTargetType(property), preferredLabel, ((DropdownAttribute)attribute).IncludeNull);
+            var dropdown = new PropertyTypeSelectionDropdown(property, new [] {GetTargetType(property) }, preferredLabel, ((DropdownAttribute)attribute).IncludeNull);
             dropdown.DropdownField.AddToClassList("unity-base-field__inspector-field");
             dropdown.DropdownField.AddToClassList("unity-base-field__aligned");
             return dropdown;

@@ -225,7 +225,7 @@ namespace Stats
         {
             if (statItem.GetType() == StatItemType)
             {
-                AddStat(((StatItem)statItem).Stat);
+                AddStat(((StatItem)statItem).Value);
             }
             else
             {
@@ -239,7 +239,7 @@ namespace Stats
         {
             if (attributeItem.GetType() == AttributeItemType)
             {
-                AddAttribute(((AttributeItem)attributeItem).Attribute);
+                AddAttribute(((AttributeItem)attributeItem).Value);
             }
             else
             {

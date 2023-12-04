@@ -23,7 +23,7 @@ namespace AInspector
         private string _value;
         private readonly PropertyField _propertyField;
 
-        public PropertyTypeSelectionDropdown(SerializedProperty property, Type targetType, string label, bool allowNull = false)
+        public PropertyTypeSelectionDropdown(SerializedProperty property, Type[] types, string label, bool allowNull = false)
         {
             if (property.propertyType != SerializedPropertyType.ManagedReference)
             {
@@ -33,7 +33,7 @@ namespace AInspector
             _allowNull = allowNull;
             
             _propertyField = new PropertyField(property);
-            _propertyField.RegisterCallback<GeometryChangedEvent>(OnGeometryChangedEvent);
+            _propertyField.RegisterCallback<GeometryChangedEvent>(GeometryChangedEvent);
             
             DropdownField = new DropdownField(label);
             DropdownField.style.marginTop = 0;
@@ -46,7 +46,8 @@ namespace AInspector
             
             style.marginTop = 1;
             
-            InitializeDropdownTypes(property, targetType);
+            InitializeDropdownTypes(property, types);
+            
             this.Bind(property.serializedObject);
             return;
             
@@ -60,12 +61,12 @@ namespace AInspector
                 object newObject = CreateInstanceByType(type);
                 ApplyValueToProperty(newObject, property);
                 _propertyField.BindProperty(property);
-                _propertyField.RegisterCallback<GeometryChangedEvent>(OnGeometryChangedEvent);
+                _propertyField.RegisterCallback<GeometryChangedEvent>(GeometryChangedEvent);
             }
             
-            void OnGeometryChangedEvent(GeometryChangedEvent evt)
+            void GeometryChangedEvent(GeometryChangedEvent evt)
             {
-                _propertyField.UnregisterCallback<GeometryChangedEvent>(OnGeometryChangedEvent);
+                _propertyField.UnregisterCallback<GeometryChangedEvent>(GeometryChangedEvent);
                 UpdateDropdown();
             }
 
@@ -77,7 +78,7 @@ namespace AInspector
                 
                 if (_propertyField.localBound.height == 0)
                 {
-                    _propertyField.RegisterCallback<GeometryChangedEvent>(OnGeometryChangedEvent);
+                    _propertyField.RegisterCallback<GeometryChangedEvent>(GeometryChangedEvent);
                     return;
                 }
                 
@@ -97,16 +98,19 @@ namespace AInspector
             }
         }
 
-        private void InitializeDropdownTypes(SerializedProperty property, Type targetType)
+        private void InitializeDropdownTypes(SerializedProperty property, IEnumerable<Type> types)
         {
-            foreach (Type type in GetAssignableTypes(targetType))
+            foreach (Type targetType in types)
             {
-                string typeName = GetTypeName(type);
-                DropdownField.choices.Add(typeName);
-                if (type != null)
+                foreach (Type type in GetAssignableTypes(targetType))
                 {
-                    _typeByName[typeName] = type;
-                    _nameByType[type] = typeName;
+                    string typeName = GetTypeName(type);
+                    DropdownField.choices.Add(typeName);
+                    if (type != null)
+                    {
+                        _typeByName[typeName] = type;
+                        _nameByType[type] = typeName;
+                    }
                 }
             }
             
@@ -116,6 +120,10 @@ namespace AInspector
             if (_nameByType.TryGetValue(currentType, out string currentTypeName))
             {
                 DropdownField.value = currentTypeName;
+            }
+            else
+            {
+                DropdownField.value = GetTypeName(currentType);
             }
         }
 
@@ -172,9 +180,18 @@ namespace AInspector
             {
                 nonUnityTypes.Add(null);
             }
+            if (IsCorrectType(targetType))
+            {
+                nonUnityTypes.Add(targetType);
+            }
             nonUnityTypes.AddRange(TypeCache.GetTypesDerivedFrom(targetType)
-                .Where(type => TypeUtils.IsFinalNonGenericAssignableType(type) && !type.IsSubclassOf(typeof(UnityEngine.Object))));
+                .Where(IsCorrectType));
             return nonUnityTypes;
+
+            bool IsCorrectType(Type type)
+            {
+                return TypeUtils.IsFinalNonGenericAssignableType(type) && !type.IsSubclassOf(typeof(UnityEngine.Object));
+            }
         }
 
         private static object CreateInstanceByType(Type type)

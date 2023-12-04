@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using AInspector;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -10,20 +9,37 @@ namespace Stats.Editor
     public sealed class GetterDrawer : PropertyDrawer
     {
         private PropertyTypeSelectionDropdown _typeSelectionDropdown;
-        private const BindingFlags Flags = BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public;
 
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
-            const string propertyName = "_property";
+            const string propertyName = "Property";
             SerializedProperty propertyItem = property.FindPropertyRelative(propertyName);
             
-            Type targetType = property.GetValue().GetType().GetProperty("Property", Flags)!.PropertyType;
+            Type genericType = GetGenericGetType(property.GetValue().GetType());
+            Type targetType = typeof(IGetType<>).MakeGenericType(genericType);
             
-            var dropdown = new PropertyTypeSelectionDropdown(propertyItem, targetType, preferredLabel);
-            dropdown.DropdownField.AddToClassList("unity-base-field__inspector-field");
-            dropdown.DropdownField.AddToClassList("unity-base-field__aligned");
+            PropertyTypeSelectionDropdown dropdown = CreateDropdown(propertyItem, new[] { targetType });
             
             return dropdown;
+        }
+
+        private PropertyTypeSelectionDropdown CreateDropdown(SerializedProperty propertyItem, Type[] types)
+        {
+            var dropdown = new PropertyTypeSelectionDropdown(propertyItem, types, preferredLabel);
+            dropdown.DropdownField.AddToClassList("unity-base-field__inspector-field");
+            dropdown.DropdownField.AddToClassList("unity-base-field__aligned");
+            return dropdown;
+        }
+
+        private static Type GetGenericGetType(Type type)
+        {
+            while (type != typeof(object) && (!type!.IsGenericType || type.GetGenericTypeDefinition() != typeof(Getter<>)))
+            {
+                type = type.BaseType;
+            }
+            
+            Type genericType = type.GetGenericArguments()[0];
+            return genericType;
         }
     }
 }

@@ -9,32 +9,48 @@ using UnityEditor;
 namespace Stats
 {
     [Serializable]
+    public sealed class ObjectValueGetType : IGetType<object>
+    {
+        public object Value;
+
+        public ObjectValueGetType(object value)
+        {
+            Value = value;
+        }
+
+        public ObjectValueGetType()
+        {
+        }
+
+        public object Get() => Value;
+    }
+
+    [Serializable]
     public class Getter<TValue>
 #if UNITY_EDITOR
         : ISerializationCallbackReceiver
 #endif
     {
-        [SerializeReference] private object _property;
+        [SerializeReference] protected object Property;
 #if UNITY_EDITOR
         private Type _defaultEditorPropertyType;
 #endif
 
-        public IGetType<TValue> Property
-        {
-            get => _property as IGetType<TValue>;
-            set => _property = value;
-        }
+        public virtual TValue Value => Property is IGetType<TValue> getType ? getType.Get() : default;
 
         public Getter(IGetType<TValue> defaultValue)
         {
-            _property = defaultValue;
+            Property = defaultValue;
+        }
+
+        public Getter(ObjectValueGetType defaultValue)
+        {
+            Property = defaultValue;
         }
 
         public Getter()
         {
         }
-
-        public virtual TValue Get() => Property != null ? Property.Get() : default;
 
         public override string ToString() => Property?.ToString() ?? "(none)";
 
@@ -53,11 +69,10 @@ namespace Stats
             TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom(_defaultEditorPropertyType);
             foreach (Type type in types.Where(IsFinalNonGenericAssignableType))
             {
-                Property = (IGetType<TValue>)Activator.CreateInstance(type);
+                Property = Activator.CreateInstance(type);
                 return;
             }
         }
-
 
         void ISerializationCallbackReceiver.OnAfterDeserialize()
         {
