@@ -9,23 +9,6 @@ using UnityEditor;
 namespace Stats
 {
     [Serializable]
-    public sealed class ObjectValueGetType : IGetType<object>
-    {
-        public object Value;
-
-        public ObjectValueGetType(object value)
-        {
-            Value = value;
-        }
-
-        public ObjectValueGetType()
-        {
-        }
-
-        public object Get() => Value;
-    }
-
-    [Serializable]
     public class Getter<TValue>
 #if UNITY_EDITOR
         : ISerializationCallbackReceiver
@@ -36,16 +19,26 @@ namespace Stats
         private Type _defaultEditorPropertyType;
 #endif
 
-        public virtual TValue Value => Property is IGetType<TValue> getType ? getType.Get() : default;
+        public virtual TValue Value
+        {
+            get
+            {
+                if (Property is ObjectValueGetType objectValueGetType)
+                {
+                    return objectValueGetType.Value is TValue value ? value : default;
+                }
+                return Property is IGetType<TValue> getType ? getType.Get() : default;
+            }
+        }
 
         public Getter(IGetType<TValue> defaultValue)
         {
             Property = defaultValue;
         }
 
-        public Getter(ObjectValueGetType defaultValue)
+        public Getter(TValue value)
         {
-            Property = defaultValue;
+            Property = new ObjectValueGetType(value);
         }
 
         public Getter()
