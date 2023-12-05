@@ -6,7 +6,7 @@ namespace AInspector
     {
         public readonly bool IncludeNull;
 
-        public DropdownAttribute(bool includeNull)
+        public DropdownAttribute(bool includeNull = true)
         {
             IncludeNull = includeNull;
         }
