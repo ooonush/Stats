@@ -17,7 +17,7 @@ namespace Stats
         /// <summary>
         /// All Stats in this TraitsClass.
         /// </summary>
-        public IReadOnlyList<IStat> Stats
+        public virtual IReadOnlyList<IStat> Stats
         {
             get
             {
@@ -32,7 +32,7 @@ namespace Stats
         /// <summary>
         /// All Attributes in this TraitsClass.
         /// </summary>
-        public IReadOnlyList<IAttribute> Attributes
+        public virtual IReadOnlyList<IAttribute> Attributes
         {
             get
             {
