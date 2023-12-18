@@ -1,5 +1,6 @@
 ﻿using System;
 using AInspector;
+using UnityEngine;
 
 namespace Stats
 {
@@ -7,7 +8,7 @@ namespace Stats
     [DropdownName("Value From Script")]
     public sealed class ObjectValueGetType : IGetType<object>
     {
-        public object Value;
+        [SerializeReference] public object Value;
 
         public ObjectValueGetType(object value)
         {

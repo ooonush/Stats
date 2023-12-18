@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -38,7 +39,14 @@ namespace Stats
 
         public Getter(TValue value)
         {
-            Property = new ObjectValueGetType(value);
+            if (value is Object asset)
+            {
+                Property = new AssetValueGetType(asset);
+            }
+            else
+            {
+                Property = new ObjectValueGetType(value);
+            }
         }
 
         public Getter()
