@@ -4,7 +4,7 @@ using AInspector;
 namespace Stats
 {
     [Serializable]
-    [DropdownName("Asset Override (Int)")]
+    [DropdownName("Asset (Int)")]
     internal class AttributeIntIdAssetGetType : AttributeIdAssetGetType<TInt>
     {
     }
