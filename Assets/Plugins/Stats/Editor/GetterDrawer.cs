@@ -33,13 +33,12 @@ namespace Stats.Editor
 
         private static Type GetGenericGetType(Type type)
         {
-            while (type != typeof(object) && (!type!.IsGenericType || type.GetGenericTypeDefinition() != typeof(Getter<>)))
+            while (!type!.IsGenericType || type.GetGenericTypeDefinition() != typeof(Getter<>))
             {
                 type = type.BaseType;
             }
             
-            Type genericType = type.GetGenericArguments()[0];
-            return genericType;
+            return type.GetGenericArguments()[0];
         }
     }
 }
