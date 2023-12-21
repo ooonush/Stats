@@ -24,11 +24,12 @@ namespace Stats
         {
             get
             {
-                if (Property is ObjectValueGetType objectValueGetType)
+                return Property switch
                 {
-                    return objectValueGetType.Value is TValue value ? value : default;
-                }
-                return Property is IGetType<TValue> getType ? getType.Get() : default;
+                    AssetValueGetType assetValueGetType => assetValueGetType.Value is TValue value ? value : default,
+                    ObjectValueGetType objectValueGetType => objectValueGetType.Value is TValue value ? value : default,
+                    _ => Property is IGetType<TValue> getType ? getType.Get() : default
+                };
             }
         }
 
@@ -39,14 +40,11 @@ namespace Stats
 
         public Getter(TValue value)
         {
-            if (value is Object asset)
+            Property = value switch
             {
-                Property = new AssetValueGetType(asset);
-            }
-            else
-            {
-                Property = new ObjectValueGetType(value);
-            }
+                Object asset => new AssetValueGetType(asset),
+                _ => new ObjectValueGetType(value)
+            };
         }
 
         public Getter()
@@ -65,13 +63,20 @@ namespace Stats
 #if UNITY_EDITOR
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            if (Property != null || _defaultEditorPropertyType == null) return;
-            
-            TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom(_defaultEditorPropertyType);
-            foreach (Type type in types.Where(IsFinalNonGenericAssignableType))
+            if (Property == null)
             {
-                Property = Activator.CreateInstance(type);
-                return;
+                if (_defaultEditorPropertyType != null)
+                {
+                    TypeCache.TypeCollection types = TypeCache.GetTypesDerivedFrom(_defaultEditorPropertyType);
+                    foreach (Type type in types.Where(IsFinalNonGenericAssignableType))
+                    {
+                        Property = Activator.CreateInstance(type);
+                    }
+                }
+            }
+            if (Property is not (AssetValueGetType or ObjectValueGetType or IGetType<TValue>))
+            {
+                Property = null;
             }
         }
 
