@@ -12,16 +12,21 @@ namespace AInspector
     {
         private const BindingFlags BINDINGS = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
-        public static void ApplyUnregisteredSerialization(SerializedObject serializedObject)
+        public static bool ApplyUnregisteredSerialization(SerializedObject serializedObject)
         {
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
-            serializedObject.Update();
-            
-            var component = serializedObject.targetObject as Component;
-            if (component == null || !component.gameObject.scene.isLoaded) return;
-            
-            if (Application.isPlaying) return;
-            EditorSceneManager.MarkSceneDirty(component.gameObject.scene);
+            if (serializedObject.ApplyModifiedPropertiesWithoutUndo())
+            {
+                serializedObject.Update();
+                
+                var component = serializedObject.targetObject as Component;
+                if (component == null || !component.gameObject.scene.isLoaded) return true;
+                
+                if (Application.isPlaying) return true;
+                EditorSceneManager.MarkSceneDirty(component.gameObject.scene);
+                return true;
+            }
+
+            return false;
         }
 
         public static T GetValue<T>(this SerializedProperty property)
