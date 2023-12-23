@@ -8,8 +8,6 @@ namespace Stats.Editor
     [CustomPropertyDrawer(typeof(Getter<>), true)]
     public sealed class GetterDrawer : PropertyDrawer
     {
-        private PropertyTypeSelectionDropdown _typeSelectionDropdown;
-
         public override VisualElement CreatePropertyGUI(SerializedProperty property)
         {
             const string propertyName = "Property";
