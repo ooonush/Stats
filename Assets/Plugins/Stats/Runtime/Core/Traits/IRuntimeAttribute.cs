@@ -9,7 +9,7 @@ namespace Stats
 
         event AttributeValueChangedAction OnValueChanged;
 
-        protected internal void InitializeStartValues();
+        internal void InitializeStartValues();
     }
 
     public interface IRuntimeAttribute<TNumber> : IRuntimeAttribute where TNumber : IStatNumber<TNumber>

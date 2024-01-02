@@ -7,7 +7,7 @@ namespace Stats
         bool Contains(StatId statId);
         IRuntimeStat Get(StatId statId);
         IRuntimeStat<TNumber> Get<TNumber>(StatId<TNumber> statId) where TNumber : IStatNumber<TNumber>;
-        protected internal void SyncWithTraitsClass(ITraitsClass traitsClass);
-        protected internal void InitializeStartValues();
+        internal void SyncWithTraitsClass(ITraitsClass traitsClass);
+        internal void InitializeStartValues();
     }
 }

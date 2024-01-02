@@ -11,7 +11,7 @@ namespace Stats
         TDouble ModifiersValue { get; }
         IReadOnlyList<PercentageModifier> PercentageModifiers { get; }
         IReadOnlyList<ConstantModifier<TDouble>> ConstantModifiers { get; }
-        protected internal void InitializeStartValues();
+        internal void InitializeStartValues();
     }
 
     public interface IRuntimeStat<TNumber> : IRuntimeStat where TNumber : IStatNumber<TNumber>
