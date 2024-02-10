@@ -27,7 +27,7 @@ namespace Stats
             Traits = traits;
         }
 
-        private void AddAttribute<TNumber>(IAttribute<TNumber> attribute) where TNumber : IStatNumber<TNumber>
+        private void AddAttribute<TNumber>(IAttribute<TNumber> attribute) where TNumber : struct, IStatNumber<TNumber>
         {
             IRuntimeAttribute runtimeAttribute = CreateRuntimeAttribute(attribute);
             

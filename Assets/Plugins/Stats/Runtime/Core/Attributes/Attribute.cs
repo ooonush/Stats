@@ -18,5 +18,17 @@ namespace Stats
 
         IStat IAttribute.MaxValueStat => MaxValueStat;
         AttributeId IAttribute.AttributeId => AttributeId;
+
+        public Attribute()
+        {
+        }
+
+        public Attribute(AttributeId<TNumber> attributeId, Stat<TNumber> maxValueStat, TNumber minValue = default, float startPercent = 1f)
+        {
+            _attributeId = new AttributeIdItem<TNumber>(attributeId);
+            _minValue = minValue;
+            _maxValueStat = new StatItem<TNumber>(maxValueStat);
+            _startPercent = startPercent;
+        }
     }
 }

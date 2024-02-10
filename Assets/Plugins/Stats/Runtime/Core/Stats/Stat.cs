@@ -14,5 +14,16 @@ namespace Stats
         public TNumber Base => _base;
         public StatFormula<TNumber> Formula => _formula;
         StatId IStat.StatId => StatId;
+
+        public Stat()
+        {
+        }
+
+        public Stat(StatId<TNumber> statId, TNumber baseValue, StatFormula<TNumber> formula = null)
+        {
+            _statId = new StatIdItem<TNumber>(statId);
+            _base = baseValue;
+            _formula = formula;
+        }
     }
 }
